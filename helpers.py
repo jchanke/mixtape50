@@ -31,20 +31,20 @@ SPOTIPY_CLIENT_ID = os.getenv("SPOTIPY_CLIENT_ID")
 SPOTIPY_CLIENT_SECRET = os.getenv("SPOTIFY_CLIENT_SECRET")
 SPOTIPY_REDIRECT_URI = f"{CLIENT_SIDE_URL}:{PORT}/callback"
 
-scope = "user-library-read"
+SCOPE = "playlist-modify-public playlist-modify-private playlist-read-private"
 
 # Set up Spotipy
 sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=SPOTIPY_CLIENT_ID,
     client_secret=SPOTIPY_CLIENT_SECRET,
     redirect_uri=SPOTIPY_REDIRECT_URI,
-    scope=scope
+    scope=SCOPE,
 ))
 
 # Import sqlite database
 tracks = sqlite3.connect("tracks.db")
 db = sqlite3.Cursor(tracks)
 
-def search_message(message, max_search_length = 10, query_lookup={ "": True, }, failed_queries=set()):
+def search_message(message, max_search_length = 10, query_lookup=dict(), failed_queries=set()):
     '''
     search_message(message, max_search_length = 10)
     
@@ -60,6 +60,7 @@ def search_message(message, max_search_length = 10, query_lookup={ "": True, }, 
     Spotify 1.2M songs dataset via an sqlite3 query.
 
     https://www.kaggle.com/rodolfofigueroa/spotify-12m-songs
+
     '''
 
     # Split message into words
@@ -67,7 +68,6 @@ def search_message(message, max_search_length = 10, query_lookup={ "": True, }, 
     
     # Gets up to max_search_length words of message
     query_length = min(max_search_length, len(message))
-    # query = " ".join(message[:query_length])
 
     # List containing search functions to iterate over
     search_functions = [search_lookup,
@@ -146,29 +146,36 @@ def search_lookup(query, query_lookup):
 
 def search_spotipy(query, query_lookup):
     """
-    Uses Spotify API via spotipy library to return a list of songs which 
-    match the query.
+    Uses Spotify API via spotipy library to return a list of songs (name
+    & id) which match the query.
 
     Note: the query_lookup parameter is not used. It is only included
     in the definition because query_lookup is passed to search_functions.
     """
+    # Attributes to return
+    attributes = ["name", "id"]
+
     # Search for tracks where the name matches query
     results = sp.search(q=f"track:\"{query}\"", type="track", limit=50)
     results = results["tracks"]["items"]
-    results = [item["name"] for item in results if remove_punctuation(clean_title(item["name"].casefold())) == remove_punctuation(query)]
+    results = [{ attr: item[attr] for attr in attributes } for item in results if remove_punctuation(clean_title(item["name"].casefold())) == remove_punctuation(query)]
 
     return results
 
 def search_db(query, query_lookup):
     """
     Searches tracks.db (1.2 million songs from Spotify from the Kaggle 
-    database) to return a list of songs which match the query.
+    database) to return a list of songs (name & id) which match the 
+    query.
 
     https://www.kaggle.com/rodolfofigueroa/spotify-12m-songs 
     """
     # SQLite3 query 
-    results = db.execute("SELECT name FROM tracks WHERE name_cleaned = ?", [remove_punctuation(query)]).fetchall()
-    results = list(map(lambda item: item[0], results))
+    results = db.execute("SELECT name, id FROM tracks WHERE name_cleaned = ?", [remove_punctuation(query)]).fetchall()
+    results = list(map(lambda item: {
+        "name": item[0],
+        "id": item[1],
+    }, results))
 
     return results
 
@@ -208,3 +215,26 @@ def remove_punctuation(title):
     title = re.sub(r"[!\"#$%'‘’()*+,-.:;<=>?@[\\\]^_—`{|}~]", "", title)
     title = re.sub(r"\s{2,}", " ", title)
     return title.strip()
+
+
+"""
+Creates new Spotify playlist.
+"""
+
+def create_playlist(results):
+    
+    # Process items
+    items = list(map(lambda songs: songs[0]["id"], results))
+
+    # Create playlist
+    playlist = sp.user_playlist_create(
+        user=sp.me()["id"],
+        name="Mixtape50",
+        public=False,
+        collaborative=False,
+        description="Created with Mixtape50"
+    )
+
+    sp.playlist_add_items(playlist_id=playlist["id"], items=items)
+
+    return
