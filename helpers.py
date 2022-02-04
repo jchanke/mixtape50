@@ -206,13 +206,13 @@ def remove_punctuation(title):
     - Delete XML escape sequences: &amp; &quot; &lt; &gt; &apos;
     - Replace "/", "//", etc. and surrounding whitespace with " " (in medley titles)
     - Replace "&" and surrounding whitespace with " and " 
-    - Remove the following characters from the string: !"#$%'‘’()*+,-.:;<=>?@[\]^_—`{|}~
+    - Remove the following characters from the string: !"#$%'‘’“”()*+,-.:;<=>?@[\]^_—`{|}~
     - Strips surrounding whitespace
     """
     title = re.sub(r"&[amp|quot|lt|gt|apos];", "", title)
     title = re.sub(r"\s*\/+\s*", " ", title)
     title = re.sub(r"\s*&\s*", " and ", title)
-    title = re.sub(r"[!\"#$%'‘’()*+,-.:;<=>?@[\\\]^_—`{|}~]", "", title)
+    title = re.sub(r"[!\"#$%'‘’“”()*+,-.:;<=>?@[\\\]^_—`{|}~]", "", title)
     title = re.sub(r"\s{2,}", " ", title)
     return title.strip()
 
