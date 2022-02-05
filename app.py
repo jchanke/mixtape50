@@ -4,23 +4,51 @@ from crypt import methods
 import os
 import re
 import sqlite3
+from urllib.request import HTTPBasicAuthHandler
 import requests
 import json
 
-from flask import Flask, flash, redirect, render_template, request, session, url_for
+from flask import Flask, Response, flash, make_response, redirect, render_template, request, session, url_for, jsonify
 from tempfile import mkdtemp
 from werkzeug.security import check_password_hash, generate_password_hash
 from markupsafe import escape
 
-from helpers import search_message
+from helpers import search_message, format_sse, announcer
 
 # Configure app
 app = Flask(__name__)
 
-@app.route("/", methods = ["GET"])
+# Ensure templates are auto-reloaded
+app.config["TEMPLATES_AUTO_RELOAD"] = True
+
+@app.route("/", methods = ["GET", "POST"])
 def index():
+    if request.method == "POST":
+        message = request.form.get("message")
 
-       return 
+        announcer.announce(format_sse(event = "clear")) 
 
+        results = search_message(message = message)
 
+        return jsonify(results)
+    
+    else:
+        return render_template("index.html")
+    
+@app.route("/listen")
+def listen():
+    
+    def stream():
+        print(announcer)
+        messages = announcer.listen() # Queue object is created in announcer.listeners & returned to messages
+        
+        while True:
+            message = messages.get(block=True) # If no messages in messages, "block" (pause) execution until it arrives
+            yield message
 
+    response = Response(stream(), mimetype="text/event-stream")
+    return response
+
+@app.route("/creating", methods = ["GET", "POST"])
+def creating():
+    return render_template("creating.html")

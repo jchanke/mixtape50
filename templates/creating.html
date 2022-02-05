@@ -1,0 +1,68 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Creating Mixtape...
+{% endblock %}
+
+{% block main %}
+    <div id="tracks-list">
+    </div>
+
+    <script>
+        var evtSource = new EventSource("/listen");
+        var eventList = document.getElementById("tracks-list");
+        
+        function clear(event) {
+            console.log("clear\n")
+            eventList.innerHTML = "";
+        }
+
+        function addPrefix(event) {
+            console.log(event.data);
+
+            // First, lock in previous track
+            if (eventList.innerHTML != "")
+            {
+                eventList.lastChild.firstChild.className = "track";
+            }
+
+            // Create a span, newElement
+            // ┌──────────┬──────────┐
+            // │ newTrack │ newSpace │
+            // └──────────┴──────────┘
+            var newElement = document.createElement("span");
+            var newTrack = document.createElement("span");
+            var newSpace = document.createElement("span");
+            newTrack.innerHTML = event.data;
+            newSpace.innerHTML = " ";
+            newElement.appendChild(newTrack);
+            newElement.appendChild(newSpace);
+            eventList.appendChild(newElement);
+        }
+
+        function removePrefix(event) {
+            eventList.removeChild(eventList.lastChild);
+        }
+
+        function lockIn(event) {
+            eventList.lastChild.lastChild.remove() // remove last space
+            eventList.lastChild.lastChild.className = "track" // lock in last track
+            evtSource.close() // close the connection
+        }
+
+        evtSource.onopen = function(e) {
+            console.log("Connection requested...");
+        }
+
+        evtSource.onmessage = (event) => console.log(event.data);
+
+        evtSource.addEventListener("clear", clear);
+        evtSource.addEventListener("add", addPrefix);
+        evtSource.addEventListener("drop", removePrefix);
+        evtSource.addEventListener("lock in", lockIn);
+
+        evtSource.onerror = function(e) {
+            console.error("EventSource failed:", e);
+        }
+    </script>
+{% endblock%}
