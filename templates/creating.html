@@ -12,13 +12,21 @@
         var evtSource = new EventSource("/listen");
         var eventList = document.getElementById("tracks-list");
         
+        evtSource.onopen = (event) => console.log("Connection requested...");
+        evtSource.onmessage = (event) => console.log(event.data);
+        evtSource.onerror = (error) => console.error("EventSource failed:", e);
+
+        evtSource.addEventListener("clear", clear);
+        evtSource.addEventListener("add", addPrefix);
+        evtSource.addEventListener("drop", removePrefix);
+        evtSource.addEventListener("lock in", lockIn);
+
         function clear(event) {
-            console.log("clear\n")
+            console.log("clear\n");
             eventList.innerHTML = "";
         }
 
         function addPrefix(event) {
-            console.log(event.data);
 
             // First, lock in previous track
             if (eventList.innerHTML != "")
@@ -26,7 +34,7 @@
                 eventList.lastChild.firstChild.className = "track";
             }
 
-            // Create a span, newElement
+            // Create a span ("newElement")
             // ┌──────────┬──────────┐
             // │ newTrack │ newSpace │
             // └──────────┴──────────┘
@@ -45,24 +53,10 @@
         }
 
         function lockIn(event) {
-            eventList.lastChild.lastChild.remove() // remove last space
+            eventList.lastChild.lastChild.remove() // remove last newSpace
             eventList.lastChild.lastChild.className = "track" // lock in last track
             evtSource.close() // close the connection
         }
 
-        evtSource.onopen = function(e) {
-            console.log("Connection requested...");
-        }
-
-        evtSource.onmessage = (event) => console.log(event.data);
-
-        evtSource.addEventListener("clear", clear);
-        evtSource.addEventListener("add", addPrefix);
-        evtSource.addEventListener("drop", removePrefix);
-        evtSource.addEventListener("lock in", lockIn);
-
-        evtSource.onerror = function(e) {
-            console.error("EventSource failed:", e);
-        }
     </script>
 {% endblock%}

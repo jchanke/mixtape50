@@ -13,7 +13,8 @@ from tempfile import mkdtemp
 from werkzeug.security import check_password_hash, generate_password_hash
 from markupsafe import escape
 
-from helpers import search_message, format_sse, announcer
+from helpers import search_message, announcer
+from announcer import format_sse
 
 # Configure app
 app = Flask(__name__)
@@ -29,6 +30,9 @@ def index():
         announcer.announce(format_sse(event = "clear")) 
 
         results = search_message(message = message)
+        if not results:
+            announcer.announce(format_sse(event = "clear"))
+            return render_template("index.html")
 
         return jsonify(results)
     

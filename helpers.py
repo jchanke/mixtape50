@@ -3,17 +3,13 @@ Does the legwork of searching for matching tracks.
 
 Contains:
 
-(0) Create MessageAnnouncer class (adapted from: https://maxhalford.github.io/blog/flask-sse-no-deps/)
- - MessageAnnouncer
- - format_sse
-
 (1) Search functions:
  - search_message
  - search_spotipy
  - search_db
  - search_lookup
 
-(2) String parses (to clean title name):
+(2) String parsers (to clean title name):
  - clean_title
  - remove_punctuation
 """
@@ -21,10 +17,11 @@ from typing import Any, List, Dict, Union
 import os
 import re
 import sqlite3
-import queue # for MessageAnnouncer
 
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
+
+from announcer import MessageAnnouncer, format_sse
 
 # Localhost URL to access the application; Flask runs on port 5000 by default 
 # Adapated from https://github.com/Deffro/statify/blob/dd15a6e70428bd36ecddb5d4a8ac3d82b85c9339/code/server.py#L553
@@ -39,70 +36,21 @@ SPOTIPY_REDIRECT_URI = f"{CLIENT_SIDE_URL}:{PORT}/callback"
 SCOPE = "playlist-modify-public playlist-modify-private playlist-read-private"
 
 # Set up Spotipy
-sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=SPOTIPY_CLIENT_ID,
-    client_secret=SPOTIPY_CLIENT_SECRET,
-    redirect_uri=SPOTIPY_REDIRECT_URI,
-    scope=SCOPE,
+sp = spotipy.Spotify(auth_manager = SpotifyOAuth(client_id = SPOTIPY_CLIENT_ID,
+    client_secret = SPOTIPY_CLIENT_SECRET,
+    redirect_uri = SPOTIPY_REDIRECT_URI,
+    scope = SCOPE,
 ))
 
-
-"""
-(0) Create MessageAnnouncer class
-(Adapted from: https://maxhalford.github.io/blog/flask-sse-no-deps/)
-"""
-class MessageAnnouncer:
-
-    def __init__(self):
-        """
-        Creates a list listeners or queue objects.
-        """
-        self.listeners: List[queue.Queue] = []
-
-    def listen(self):
-        """
-        Creates a new queue object, and adds it to self.listeners.
-        Returns the queue object.	
-        """
-        q = queue.Queue(maxsize=5)
-        self.listeners.append(q)
-        self.listeners[-1].put_nowait(format_sse(data = "You have successfully connected."))
-        return q
-
-    def announce(self, message):
-        """
-        Goes through queues in listeners from last to first;
-        if queue is full, delete that queue.
-        """
-        for q in reversed(self.listeners):
-            # Tries to add message to queue, else raises exception queue.Full
-            try:
-                q.put_nowait(message)
-            except queue.Full:
-                del q
-
+# Create ('instantiate') a MessageAnnouncer object
 announcer = MessageAnnouncer()
-
-def format_sse(data: str = "", event = None) -> str:
-    """
-    Formats data to the event-stream format.
-
-    https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#event_stream_format
-    """
-    message = f"data: {data}\n\n"
-
-    # If event is specified, prepend "event: {event}\n"
-    if event is not None:
-        message = f"event: {event}\n{message}"
-
-    return message
-
 
 """
 (1) Search functions:
-    - search_message
-    - search_spotipy
-    - search_db
-    - search_lookup
+ - search_message
+ - search_spotipy
+ - search_db
+ - search_lookup
 """
 
 def search_message(message: str, max_search_length: int = 10,
@@ -119,19 +67,24 @@ def search_message(message: str, max_search_length: int = 10,
     Returns songs from Spotify API via spotipy library; if not, checks
     Spotify 1.2M songs dataset via an sqlite3 query.
 
+    Memoizes successful queries (to query_lookup) and failured queries (to
+    failed_queries).
+
     https://www.kaggle.com/rodolfofigueroa/spotify-12m-songs
     """
     
-    # Split message into words
+    # Split message into list of lower-case words
     message = remove_punctuation(message.casefold()).split()
     
     # Gets up to max_search_length words of message
     query_length = min(max_search_length, len(message))
 
     # List containing search functions to iterate over
-    search_functions = [search_lookup,
-                        search_spotipy,
-                        search_db]
+    search_functions = [
+        search_lookup,
+        search_spotipy,
+        search_db,
+    ]
 
     # Splits query into prefix and suffix, decrementing prefix, until
     #  - prefix exactly matches a song
@@ -144,43 +97,45 @@ def search_message(message: str, max_search_length: int = 10,
         announcer.announce(format_sse(data = prefix, event = "add"))
 
         # Only search if both prefix and suffix are not known to fail
-        if not (prefix in failed_queries or suffix in failed_queries):
+        if (prefix in failed_queries) or (suffix in failed_queries):
+            continue # back to the start of the 'for'-loop
         
-            # Looping through search functions,
-            for search_function in search_functions:
-             
-                # Search for tracks matching prefix
-                prefix_results = search_function(prefix, query_lookup=query_lookup)
-                
-                if prefix_results:
-                    query_lookup[prefix] = prefix_results
-                    print(f"Try: {prefix}")
-
-                    # Base case: if prefix is whole message, suffix == "", so we should just return prefix
-                    if suffix == "":
-                        print(f"All done!")
-                        announcer.announce(format_sse(event = "lock in"))
-                        return [prefix_results]
-                    
-                    # Recursive case: make sure suffix it can be split into songs as well
-                    else:
-                        
-                        # Search for tracks matching suffix
-                        suffix_results = search_message(suffix, max_search_length = max_search_length,
-                                                        query_lookup = query_lookup, failed_queries = failed_queries)
-                        if suffix_results:
-                            return [prefix_results] + suffix_results
-                        
-                        # Suffix cannot be split into songs: add to failed queries
-                        else:
-                            failed_queries.add(suffix)
-                            print(f"\"{suffix}\" not found.")
+        # Looping through search functions,
+        for search_function in search_functions:
             
-                # Prefix not found in this search function
+            # Search for tracks matching prefix
+            prefix_results = search_function(prefix, query_lookup = query_lookup)
+            
+            if prefix_results:
+                query_lookup[prefix] = prefix_results
+                print(f"Try: {prefix} in {search_function.__name__.replace('search_', '')}")
+
+                # Base case: if prefix is whole message, suffix == "", so we should just return prefix
+                if suffix == "":
+                    print(f"All done!")
+                    announcer.announce(format_sse(event = "lock in"))
+                    return prefix_results
+                
+                # Recursive case: make sure suffix it can be split into songs as well
                 else:
-                    print(f"\"{prefix}\" not found in {search_function.__name__.replace('search_', '')}.")
+                    
+                    # Search for tracks matching suffix
+                    suffix_results = search_message(suffix, max_search_length = max_search_length,
+                                                    query_lookup = query_lookup, failed_queries = failed_queries)
+                    if suffix_results:
+                        query_lookup[suffix] = suffix_results
+                        return prefix_results + suffix_results
+                    
+                    # Suffix cannot be split into songs: add to failed queries
+                    else:
+                        failed_queries.add(suffix)
+                        print(f"\"{suffix}\" not found.")
         
-        # Prefix not found, drop it
+            # Prefix not found in this search function
+            else:
+                print(f"\"{prefix}\" not found in {search_function.__name__.replace('search_', '')}.")
+        
+        # Prefix not found OR prefix found but suffix doesn't work, so drop it
         announcer.announce(format_sse(event = "drop"))
 
     # Recursive case: failure
@@ -213,10 +168,15 @@ def search_spotipy(query: str, query_lookup: Dict[str, list]) -> list:
 
     # Search for tracks where the name matches query
     results = sp.search(q=f"track:\"{query}\"", type="track", limit=50)
+    
     results = results["tracks"]["items"]
     results = [{ attr: item[attr] for attr in attributes } for item in results if remove_punctuation(clean_title(item["name"].casefold())) == remove_punctuation(query)]
 
-    return results
+    # If no results, return empty list:
+    if results == []:
+        return []
+    else:
+        return [results]
 
 def search_db(query: str, query_lookup: Dict[str, list]) -> list:
     """
@@ -237,13 +197,17 @@ def search_db(query: str, query_lookup: Dict[str, list]) -> list:
         "id": item[1],
     }, results))
 
-    return results
+    # If no results, return empty list
+    if results == []:
+        return []
+    else:
+        return [results]
 
 
 """
-(2) String parses (to clean title name):
-    - clean_title
-    - remove_punctuation
+(2) String parsers (to clean title name):
+ - clean_title
+ - remove_punctuation
 """
 
 def clean_title(title):
