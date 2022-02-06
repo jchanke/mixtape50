@@ -11,4 +11,10 @@
         <button type="submit" class="btn btn-primary">Create</button>
     </form>
     <br>
+
+    <script>
+        form = document.querySelector("form");
+        form.addEventListener("submit", (event) => window.open("/creating"));
+    </script>
 {% endblock%}
+

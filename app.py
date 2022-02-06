@@ -25,6 +25,7 @@ app.config["TEMPLATES_AUTO_RELOAD"] = True
 @app.route("/", methods = ["GET", "POST"])
 def index():
     if request.method == "POST":
+
         message = request.form.get("message")
 
         announcer.announce(format_sse(event = "clear")) 
@@ -34,7 +35,7 @@ def index():
             announcer.announce(format_sse(event = "clear"))
             return render_template("index.html")
 
-        return jsonify(results)
+        return render_template("index.html")
     
     else:
         return render_template("index.html")
