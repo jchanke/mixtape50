@@ -14,7 +14,7 @@
         
         evtSource.onopen = (event) => console.log("Connection requested...");
         evtSource.onmessage = (event) => console.log(event.data);
-        evtSource.onerror = (error) => console.error("EventSource failed:", e);
+        evtSource.onerror = (error) => console.error("EventSource failed:", error);
 
         evtSource.addEventListener("clear", clear);
         evtSource.addEventListener("add", addPrefix);
@@ -27,6 +27,8 @@
         }
 
         function addPrefix(event) {
+            // DEBUG:
+            console.log("add: " + event.data);
 
             // First, lock in previous track
             if (eventList.innerHTML != "")
@@ -49,13 +51,18 @@
         }
 
         function removePrefix(event) {
+            // DEBUG:
+            console.log("drop: " + event.data);
+
             eventList.removeChild(eventList.lastChild);
         }
 
         function lockIn(event) {
-            eventList.lastChild.lastChild.remove() // remove last newSpace
-            eventList.lastChild.lastChild.className = "track" // lock in last track
-            evtSource.close() // close the connection
+            // DEBUG:
+            console.log("lock in");
+            eventList.lastChild.lastChild.remove(); // remove last newSpace
+            eventList.lastChild.lastChild.className = "track"; // lock in last track
+            evtSource.close(); // close the connection
         }
 
     </script>

@@ -26,7 +26,7 @@ class MessageAnnouncer:
         Creates a new queue object, and adds it to self.listeners.
         Returns the queue object.	
         """
-        q = queue.Queue(maxsize=5)
+        q = queue.Queue(maxsize = 0) # maxsize = 0 means no maximum length
         self.listeners.append(q)
         self.listeners[-1].put_nowait(format_sse(data = "You have successfully connected."))
         return q

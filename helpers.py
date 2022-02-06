@@ -94,11 +94,11 @@ def search_message(message: str, max_search_length: int = 10,
         prefix, suffix = message[:query_length - i], message[query_length - i:]
         prefix, suffix = " ".join(prefix), " ".join(suffix)
 
-        announcer.announce(format_sse(data = prefix, event = "add"))
+        # Only search if suffix is not known to fail
+        if suffix in failed_queries:
+            continue # back to the start of the 'for' loop
 
-        # Only search if both prefix and suffix are not known to fail
-        if (prefix in failed_queries) or (suffix in failed_queries):
-            continue # back to the start of the 'for'-loop
+        announcer.announce(format_sse(event = "add", data = prefix))
         
         # Looping through search functions,
         for search_function in search_functions:
@@ -110,6 +110,11 @@ def search_message(message: str, max_search_length: int = 10,
                 query_lookup[prefix] = prefix_results
                 print(f"Try: {prefix} in {search_function.__name__.replace('search_', '')}")
 
+                # In announcer: replace prefix, add each track in prefix_results
+                announcer.announce(format_sse(event = "drop", data = prefix))
+                for track in map(lambda tracks: tracks[0]["name"], prefix_results):
+                    announcer.announce(format_sse(event = "add", data = remove_punctuation(clean_title(track.casefold()))))
+
                 # Base case: if prefix is whole message, suffix == "", so we should just return prefix
                 if suffix == "":
                     print(f"All done!")
@@ -117,28 +122,30 @@ def search_message(message: str, max_search_length: int = 10,
                     return prefix_results
                 
                 # Recursive case: make sure suffix it can be split into songs as well
-                else:
-                    
-                    # Search for tracks matching suffix
-                    suffix_results = search_message(suffix, max_search_length = max_search_length,
-                                                    query_lookup = query_lookup, failed_queries = failed_queries)
-                    if suffix_results:
-                        query_lookup[suffix] = suffix_results
-                        return prefix_results + suffix_results
-                    
-                    # Suffix cannot be split into songs: add to failed queries
-                    else:
-                        failed_queries.add(suffix)
-                        print(f"\"{suffix}\" not found.")
-        
-            # Prefix not found in this search function
-            else:
-                print(f"\"{prefix}\" not found in {search_function.__name__.replace('search_', '')}.")
-        
-        # Prefix not found OR prefix found but suffix doesn't work, so drop it
-        announcer.announce(format_sse(event = "drop"))
+                suffix_results = search_message(suffix, max_search_length = max_search_length,
+                                                query_lookup = query_lookup, failed_queries = failed_queries)
+                
+                # If both are valid, return joined list
+                if suffix_results:
+                    results = prefix_results + suffix_results
+                    query_lookup[" ".join([prefix, suffix])] = results
+                    return results
+                
+                # Suffix cannot be split into songs, drop prefix                 
+                for track in map(lambda tracks: tracks[0]["name"], prefix_results):
+                    announcer.announce(format_sse(event = "drop", data = remove_punctuation(clean_title(track.casefold()))))
+
+                print(f"\"{suffix}\" suffix can't be split.")
+                break # suffix doesn't work, try next prefix-suffix pair
+
+        # Prefix not found in all search functions, drop it
+        else:
+            print(f"\"{prefix}\" doesn't work, moving on.")
+            announcer.announce(format_sse(data = "prefix doesn't work, dropping it"))
+            announcer.announce(format_sse(event = "drop", data = prefix))
 
     # Recursive case: failure
+    failed_queries.add(" ".join(message))
     return []
 
 def search_lookup(query: str, query_lookup: Dict[str, list]) -> list:
