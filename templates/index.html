@@ -6,7 +6,7 @@
 
 {% block main %}
     <form method="post">
-        <input type="text" name="message" placeholder="Type a message..." autofocus autocomplete="off"></textarea>
+        <input type="text" name="message" placeholder="Type a message..." required autofocus autocomplete="off"></textarea>
         <br><br>
         <button type="submit" class="btn btn-primary">Create</button>
     </form>
@@ -17,4 +17,3 @@
         form.addEventListener("submit", (event) => window.open("/creating"));
     </script>
 {% endblock%}
-

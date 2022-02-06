@@ -17,6 +17,7 @@ from typing import Any, List, Dict, Union
 import os
 import re
 import sqlite3
+import time
 
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
@@ -86,6 +87,9 @@ def search_message(message: str, max_search_length: int = 10,
         search_db,
     ]
 
+    # Wait 0.2 seconds to ensure /creating has loaded
+    time.sleep(0.2)
+
     # Splits query into prefix and suffix, decrementing prefix, until
     #  - prefix exactly matches a song
     #  - suffix can be expressed as a list of songs
@@ -94,11 +98,13 @@ def search_message(message: str, max_search_length: int = 10,
         prefix, suffix = message[:query_length - i], message[query_length - i:]
         prefix, suffix = " ".join(prefix), " ".join(suffix)
 
+        announcer.announce(format_sse(event = "add", data = prefix))
+
         # Only search if suffix is not known to fail
         if suffix in failed_queries:
+            time.sleep(0.1)
+            announcer.announce(format_sse(event = "drop", data = prefix))
             continue # back to the start of the 'for' loop
-
-        announcer.announce(format_sse(event = "add", data = prefix))
         
         # Looping through search functions,
         for search_function in search_functions:
@@ -114,6 +120,7 @@ def search_message(message: str, max_search_length: int = 10,
                 announcer.announce(format_sse(event = "drop", data = prefix))
                 for track in map(lambda tracks: tracks[0]["name"], prefix_results):
                     announcer.announce(format_sse(event = "add", data = remove_punctuation(clean_title(track.casefold()))))
+                    time.sleep(0.1)
 
                 # Base case: if prefix is whole message, suffix == "", so we should just return prefix
                 if suffix == "":
@@ -134,6 +141,7 @@ def search_message(message: str, max_search_length: int = 10,
                 # Suffix cannot be split into songs, drop prefix                 
                 for track in map(lambda tracks: tracks[0]["name"], prefix_results):
                     announcer.announce(format_sse(event = "drop", data = remove_punctuation(clean_title(track.casefold()))))
+                    time.sleep(0.1)
 
                 print(f"\"{suffix}\" suffix can't be split.")
                 break # suffix doesn't work, try next prefix-suffix pair

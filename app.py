@@ -27,7 +27,6 @@ def index():
     if request.method == "POST":
 
         message = request.form.get("message")
-
         announcer.announce(format_sse(event = "clear")) 
 
         results = search_message(message = message)
