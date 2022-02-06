@@ -4,6 +4,7 @@ from crypt import methods
 import os
 import re
 import sqlite3
+import time
 from urllib.request import HTTPBasicAuthHandler
 import requests
 import json
@@ -13,7 +14,7 @@ from tempfile import mkdtemp
 from werkzeug.security import check_password_hash, generate_password_hash
 from markupsafe import escape
 
-from helpers import search_message, announcer
+from helpers import search_message, announcer, CLIENT_SIDE_URL, PORT
 from announcer import format_sse
 
 # Configure app
@@ -27,23 +28,23 @@ def index():
     if request.method == "POST":
 
         message = request.form.get("message")
-        announcer.announce(format_sse(event = "clear")) 
-
         results = search_message(message = message)
-        if not results:
-            announcer.announce(format_sse(event = "clear"))
-            return render_template("index.html")
+
+        if results:
+
+            announcer.announce(format_sse(event = "send songs", data = json.dumps(results)))
+            print("sse request sent")
 
         return render_template("index.html")
     
     else:
         return render_template("index.html")
     
+
 @app.route("/listen")
 def listen():
     
     def stream():
-        print(announcer)
         messages = announcer.listen() # Queue object is created in announcer.listeners & returned to messages
         
         while True:
@@ -53,6 +54,8 @@ def listen():
     response = Response(stream(), mimetype="text/event-stream")
     return response
 
+
 @app.route("/creating", methods = ["GET", "POST"])
 def creating():
+
     return render_template("creating.html")
