@@ -1,15 +1,50 @@
+/* @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&display=swap'); */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+
+/* Change default font */
+body {
+    font: 400 16px/24px "DM Sans", var(--bs-body-font-family);
+	font-feature-settings: "ss03";
+}
+
+a {
+	text-decoration-line: none !important;
+}
+
 /* Size for brand */
-nav .navbar-brand
-{
+nav .navbar-brand {
     font-size: xx-large;
 }
 
-/* Highlighting for tracks in tracks-list */
-.track 
-{
-    color: #4B4B4B;
-    text-decoration: none;
-    background-color: #F2E39B;
-    padding: 1px 5px;
-    border-radius: 2px 2px 2px 2px;
+/* Highlighting for tracks in tracks-list (adapted from https://julian.digital/) */
+.track {
+	color: #4B4B4B;
+	text-decoration: none;
+  	background-color: #F2E39B;
+  	padding: 1px 5px;
+  	border-radius:2px 2px 2px 2px;
+  	-moz-border-radius:2px 2px 2px 2px;
+  	-webkit-box-decoration-break: clone;
+  	box-decoration-break: clone;
+}
+
+/* index.html */
+.form-control::placeholder{
+	font-weight: bold;
+	color: #d9dadc;
+	opacity: 1;
+}
+
+.form-control {
+	background-color: transparent !important;
+	font-size: 3em;
+	font-weight: bold;
+	color: white !important;
+	border: none !important;
+	box-shadow: none !important;
+}
+
+/* creating.html */
+#tracks-list {
+	line-height: 1.7em;
 }
