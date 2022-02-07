@@ -30,7 +30,7 @@ nav .navbar-brand {
 /* index.html */
 .form-control::placeholder{
 	font-weight: bold;
-	color: #d9dadc;
+	color: hsl(220, 4%, 76%);
 	opacity: 1;
 }
 

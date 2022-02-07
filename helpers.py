@@ -12,6 +12,9 @@ Contains:
 (2) String parsers (to clean title name):
  - clean_title
  - remove_punctuation
+
+(3) Creates new Spotify playlist.
+ - create_playlist
 """
 from typing import Any, List, Dict, Union
 import os
@@ -264,10 +267,15 @@ def remove_punctuation(title):
 
 
 """
-Creates new Spotify playlist.
+(3) Creates new Spotify playlist.
 """
 
 def create_playlist(results):
+    """
+    Takes the result of search_message as input.
+    Constructs a playlist (via the spotipy library).
+    Returns the Spotify id of the playlist.
+    """
     
     # Process items
     items = list(map(lambda songs: songs[0]["id"], results))
@@ -275,12 +283,11 @@ def create_playlist(results):
     # Create playlist
     playlist = sp.user_playlist_create(
         user=sp.me()["id"],
-        name="Mixtape50",
+        name="mixtape50",
         public=False,
         collaborative=False,
-        description="Created with Mixtape50"
+        description="Created with Mixtape50: https://github.com/jchanke/mixtape50."
     )
 
     sp.playlist_add_items(playlist_id=playlist["id"], items=items)
-
-    return
+    return playlist["id"]

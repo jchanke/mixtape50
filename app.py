@@ -14,7 +14,7 @@ from tempfile import mkdtemp
 from werkzeug.security import check_password_hash, generate_password_hash
 from markupsafe import escape
 
-from helpers import search_message, announcer, CLIENT_SIDE_URL, PORT
+from helpers import search_message, create_playlist, announcer, CLIENT_SIDE_URL, PORT
 from announcer import format_sse
 
 # Configure app
@@ -30,10 +30,14 @@ def index():
         message = request.form.get("message")
         results = search_message(message = message)
 
+        # If successful, send results to /creating via SSE
         if results:
-
             announcer.announce(format_sse(event = "send songs", data = json.dumps(results)))
-            print("sse request sent")
+            announcer.announce(format_sse(event = "send playlist", data = create_playlist(results)))
+
+        # Tell /creating via SSE that results failed
+        else:
+            announcer.announce(format_sse(event = "failed"))
 
         return render_template("index.html")
     
@@ -55,7 +59,10 @@ def listen():
     return response
 
 
-@app.route("/creating", methods = ["GET", "POST"])
+@app.route("/creating", methods = ["GET"])
 def creating():
-
     return render_template("creating.html")
+
+@app.route("/about")
+def about():
+    return render_template("about.html")
