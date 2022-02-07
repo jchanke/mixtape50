@@ -15,23 +15,17 @@ function addPrefix(event) {
     console.log("add: " + event.data);
 
     // First, lock in previous track
-    if (eventList.lastChild.firstChild != null)
+    if (eventList.lastChild != null)
     {
-        eventList.lastChild.firstChild.className = "track";
+        eventList.lastChild.className = "track m-1 px-1";
     }
 
-    // Create a span ("newElement")
-    // ┌──────────┬──────────┐
-    // │ newTrack │ newSpace │
-    // └──────────┴──────────┘
-    var newElement = document.createElement("span");
-    var newTrack = document.createElement("span");
-    var newSpace = document.createElement("span");
+    // Create a div ("newTrack")
+    var newTrack = document.createElement("div");
     newTrack.innerHTML = event.data;
-    newSpace.innerHTML = " ";
-    newElement.appendChild(newTrack);
-    newElement.appendChild(newSpace);
-    eventList.appendChild(newElement);
+    newTrack.className = "m-1 px-1";
+
+    eventList.appendChild(newTrack);
 }
 
 function removePrefix(event) {
@@ -44,8 +38,8 @@ function removePrefix(event) {
 function lockIn(event) {
     // DEBUG:
     console.log("lock in");
-    eventList.lastChild.lastChild.remove(); // remove last newSpace
-    eventList.lastChild.lastChild.className = "track"; // lock in last track
+    // eventList.lastChild.lastChild.remove(); // remove last newSpace
+    eventList.lastChild.className = "track m-1 px-1"; // lock in last track
 }
 
 function getSongs(event) {

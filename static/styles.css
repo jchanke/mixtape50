@@ -21,9 +21,8 @@ nav .navbar-brand {
 	color: #4B4B4B;
 	text-decoration: none;
   	background-color: #F2E39B;
-  	padding: 1px 5px;
-  	border-radius:2px 2px 2px 2px;
-  	-moz-border-radius:2px 2px 2px 2px;
+  	border-radius: 5px;
+  	-moz-border-radius: 5px;
   	-webkit-box-decoration-break: clone;
   	box-decoration-break: clone;
 }
