@@ -9,13 +9,31 @@
         <input type="text" class="form-control" name="message" placeholder="Type a message" required autofocus autocomplete="off"></input>
         <br><br>
         <div class="d-flex justify-content-center">
-            <button type="submit" class="btn btn-primary m-auto">Create</button>
+            <button type="submit" class="btn btn-primary m-auto btn-lg">Create</button>
         </div>
     </form>
     <br>
+    <div class="d-flex justify-content-center align-items-center">
+        Try:&nbsp;
+        <button class="btn btn-secondary btn-sm m-1" id="pledge">The Singapore Pledge</button>
+        <button class="btn btn-secondary btn-sm m-1" id="outsider">The Outsider / L'Étranger</button>
+        <button class="btn btn-secondary btn-sm m-1" id="constitution">Preamble to the U.S. Constitution</button>
+    </div>
 
     <script>
+        // Open /create in new tab when form submitted
         form = document.querySelector("form");
         form.addEventListener("submit", (event) => window.open("/creating"));
+
+        // Input values into field when buttons are pressed
+        textField = document.querySelector("input");
+
+        const PLEDGE = "We, the citizens of Singapore, pledge ourselves as one united people, regardless of race, language or religion, to build a democratic society based on justice and equality so as to achieve happiness, prosperity and progress for our nation.";
+        const OUTSIDER = "Mother died today. Or maybe yesterday, I don't know. I received a telegram from the old people's home: \"Mother deceased. Funeral tomorrow. Very sincerely yours.\" That doesn't mean anything. It might have been yesterday.";
+        const CONSTITUTION = "We the People of the United States, in Order to form a more perfect Union, establish Justice, insure domestic Tranquility, provide for the common defense, promote the general Welfare, and secure the Blessings of Liberty to ourselves and our Posterity, do ordain and establish this Constitution for the United States of America.";
+
+        document.getElementById("pledge").addEventListener("click", event => textField.value = PLEDGE);
+        document.getElementById("outsider").addEventListener("click", event => textField.value = OUTSIDER);
+        document.getElementById("constitution").addEventListener("click", event => textField.value = CONSTITUTION);
     </script>
 {% endblock%}
