@@ -9,8 +9,15 @@
         <h1>About this site </h1>
         <p>This is <b>Mixtape50</b>, a final project for <a href="https://cs50.harvard.edu/x/">CS50's Introduction to Computer Science</a>.</p>
         <section>
-            <h2 class="section-header">What it does</h2>
-            <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</p>
+            <h2 class="section-header">Description</h2>
+            <p>Mixtape50 takes the a user-given message as input, and returns a playlist of songs whose titles - when put together - form that same message. For example, converting this:</p>
+            <p class="mx-5">
+                <code>Dear Prudence: I'm so tired. I don't want to spoil the party. When I get home, I'll follow the sun. I'll be back, Rocky Raccoon.</code>
+            </p>
+            <p>...to this:</p>
+            <div id="tracks-list" class="d-flex flex-wrap align-items-center" style="margin: 44px;"><div class="track m-1 px-1">dear prudence</div><div class="track m-1 px-1">im so tired</div><div class="track m-1 px-1">i dont want to spoil the party</div><div class="track m-1 px-1">when i get home</div><div class="track m-1 px-1">ill follow the sun</div><div class="track m-1 px-1">ill be back</div><div class="track m-1 px-1">rocky raccoon</div></div>
+            <p>Admittedly, this exmaple is a little contrived.</p>
+            <p>Let's break this down:</p>
         </section>
     </article>
 

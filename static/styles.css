@@ -33,6 +33,10 @@ h2 {
 	font-weight: 300;
 }
 
+code {
+	font-family: "DM Mono", monospace;
+}
+
 /* Size for brand */
 nav .navbar-brand {
     font-size: xx-large;
@@ -81,7 +85,13 @@ a:hover #github-logo {
 	text-decoration: none;
 	  background-color: #F2E39B;
 	  border-radius: 5px;
-	  -moz-border-radius: 5px;
-	  -webkit-box-decoration-break: clone;
-	  box-decoration-break: clone;
+}
+
+/* about.html */
+.section-header a {
+	color: #5e5e5e;
+}
+
+.section-header a:hover {
+	color: #6e6e6e;
 }
