@@ -9,6 +9,10 @@ body {
 
 a {
 	text-decoration-line: none !important;
+} 
+
+a:hover {
+	transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out;
 }
 
 article {
@@ -43,11 +47,19 @@ nav .navbar-brand {
 }
 
 /* Give logos URL behavior */
-a:hover #spotify-logo {
+a path {
+	transition: fill .15s ease-in-out;
+}
+
+a:hover path {
+	transition: fill .15s ease-in-out;
+}
+
+a:hover path#spotify-logo {
 	fill: #0a58ca;
 }
 
-a:hover #github-logo {
+a:hover path#github-logo {
 	fill: rgba(255,255,255,.75);
 }
 
