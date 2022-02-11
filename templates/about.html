@@ -10,14 +10,128 @@
         <p>This is <b>Mixtape50</b>, a final project for <a href="https://cs50.harvard.edu/x/">CS50's Introduction to Computer Science</a>.</p>
         <section>
             <h2 class="section-header">Description</h2>
-            <p>Mixtape50 takes the a user-given message as input, and returns a playlist of songs whose titles - when put together - form that same message. For example, converting this:</p>
-            <p class="mx-5">
+            <p>Mixtape50 takes a user-given message as input, and returns a playlist of songs whose titles - when put together - form that same message. For example, converting this:</p>
+            <p class="mx-5" style="background-color: #073642; border-radius: 4px; padding: 4px 12px;">
                 <code>Dear Prudence: I'm so tired. I don't want to spoil the party. When I get home, I'll follow the sun. I'll be back, Rocky Raccoon.</code>
             </p>
             <p>...to this:</p>
-            <div id="tracks-list" class="d-flex flex-wrap align-items-center" style="margin: 44px;"><div class="track m-1 px-1">dear prudence</div><div class="track m-1 px-1">im so tired</div><div class="track m-1 px-1">i dont want to spoil the party</div><div class="track m-1 px-1">when i get home</div><div class="track m-1 px-1">ill follow the sun</div><div class="track m-1 px-1">ill be back</div><div class="track m-1 px-1">rocky raccoon</div></div>
-            <p>Admittedly, this exmaple is a little contrived.</p>
-            <p>Let's break this down:</p>
+            <div id="tracks-list" class="d-flex flex-wrap align-items-center" style="margin: 0 44px 1rem;">
+                <div class="track m-1 px-1">dear prudence</div>
+                <div class="track m-1 px-1">im so tired</div>
+                <div class="track m-1 px-1">i dont want to spoil the party</div>
+                <div class="track m-1 px-1">when i get home</div>
+                <div class="track m-1 px-1">ill follow the sun</div>
+                <div class="track m-1 px-1">ill be back</div>
+                <div class="track m-1 px-1">rocky raccoon</div>
+            </div>
+            <p>Kind of like a <a href="https://en.wikipedia.org/wiki/Mixtape#Aesthetic">mixtape</a> - an artfully put together cassette of songs that might suggest a mood or message - only considerably less artful, and a lot more direct.</p>
+            <p>Admittedly, this example is a little contrived. But it makes clear some of the subproblems we need to solve.</p>
+            <p>Let's break them down.</p>
+        </section>
+        <section>
+            <h2 class="section-header">Title cleaning</h2>
+            <p>Let's say we want to include the word <code>happy</code> in the song. If we search Spotify, we end up with 39 distinct titles. Here is a curated subset of that, to illustrate:</p>
+            <table class="table table-sm table-dark">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Track</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th scope="row">1</th>
+                        <td>Happy</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">2</th>
+                        <td>Happy - From "Despicable Me 2"</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">3</th>
+                        <td>We Were Happy (Taylor's Version) (From The Vault)</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">4</th>
+                        <td>Happy Birthday to You (Instrumental) [Short Edit 1]</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">5</th>
+                        <td>GongXi GongXi (Happy Lunar New Year!)</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">6</th>
+                        <td>Happy w u (feat. Jason Dhakal)</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p><b>1</b> is an exact match. <b>2</b> is a close match: we mentally filter out the metadata portion when we read, and all that's left is the message string.</p>
+            <p>The rest do not match, but are good examples of some <a href="https://cdn.smehost.net/helpcentertheorchardcom-orchardprod/wp-content/uploads/2019/07/Spotify-Metadata-Style-Guide-v.2.pdf">common metadata conventions</a> in Spotify track titles.</p>
+            <ul>
+                <li>The artist name, version information, and title translations; within parentheses (<b>3</b>, <b>5</b>) or square brackets (<b>4</b>).</li>
+                <li>A featured artist, after <code>feat.</code> and within parentheses (<b>6</b>).</li>
+            </ul>
+            <p>We want to format the titles so that <b>1</b> and <b>2</b> will match our message <code>happy</code>, but not the rest. How? Mixtape50 cleans the track titles in two steps - <strong>cleaning metadata</strong>, and <strong>removing punctuation</strong>.</p>
+            <p>In the first step, <a href="https://docs.python.org/3/library/re.html">regular expressions</a> are used to clean metadata by checking for some common patterns:</p>
+            <ul>
+                <li>Anything between <code>( )</code> or <code>[ ]</code> (and any number of spaces before that) are removed.</li>
+                <li>Any instances of <code>&blank;-&blank;</code> and everything after are removed.</li>
+                <li>
+                    Any instances of
+                    <code>&blank;ft&blank;</code>
+                    <code>&blank;ft.&blank;</code>
+                    <code>&blank;ft:&blank;</code>
+                    <code>&blank;feat.&blank;</code>
+                    <code>&blank;feat:&blank;</code>
+                    <code>&blank;featuring&blank;</code>
+                    and everything after are removed, but not
+                    <code>feat</code> or <code>feature</code> (both are legitimate words).
+                </li>
+            </ul>
+            <p>These are bundled into <code>clean_title</code>, a function. A second function, <code>remove_punctuation</code> takes the cleaned title as input, and returns a string of words:</p>
+            <ul>
+                <li>composed of only lowercase alpha-numeric characters,</li>
+                <li>separated by single <code>&blank;</code>s.</li>
+            </ul>
+            <p>Putting this together, after searching Spotify, we put it through <code>clean_title</code> and then <code>remove_punctuation</code>. We also put the message string through <code>remove_punctuation</code>. We then return only the results whose cleaned versions exactly equal the cleaned message string.</p>
+            <div id="tracks-list" class="d-flex flex-wrap align-items-center justify-content-center" style="margin: 0 44px 1rem;">
+                <div class="track m-1 px-1" style="background-color: #dcd5b2;">Happy</div>
+                <div class="track m-1 px-1" style="background-color: #dcd5b2;">Happy - From "Despicable Me 2"</div>
+                <div class="track m-1 px-1" style="background-color: #dcd5b2;">We Were Happy (Taylor's Version) (From The Vault)</div>
+                <div class="track m-1 px-1" style="background-color: #dcd5b2;">Happy Birthday to You (Instrumental) [Short Edit 1]</div>
+                <div class="track m-1 px-1" style="background-color: #dcd5b2;">GongXi GongXi (Happy Lunar New Year!)</div>
+                <div class="track m-1 px-1" style="background-color: #dcd5b2;">Happy w u (feat. Jason Dhakal)</div>
+            </div>
+            <p class="text-center">▼ <code>clean_title</code></p>
+            <div id="tracks-list" class="d-flex flex-wrap align-items-center justify-content-center" style="margin: 0 44px 1rem;">
+                <div class="track m-1 px-1" style="background-color: #dcd5b2;">Happy</div>
+                <div class="track m-1 px-1" style="background-color: #dcd5b2;">Happy</div>
+                <div class="track m-1 px-1" style="background-color: #dcd5b2;">We Were Happy</div>
+                <div class="track m-1 px-1" style="background-color: #dcd5b2;">Happy Birthday to You</div>
+                <div class="track m-1 px-1" style="background-color: #dcd5b2;">GongXi GongXi</div>
+                <div class="track m-1 px-1" style="background-color: #dcd5b2;">Happy w u</div>
+            </div>
+            <p class="text-center">▼ <code>remove_punctuation</code></p>
+            <div id="tracks-list" class="d-flex flex-wrap align-items-center justify-content-center" style="margin: 0 44px 1rem;">
+                <div class="track m-1 px-1">happy</div>
+                <div class="track m-1 px-1">happy</div>
+                <div class="track m-1 px-1" style="background-color: #dcd5b2;">we were happy</div>
+                <div class="track m-1 px-1" style="background-color: #dcd5b2;">happy birthday to you</div>
+                <div class="track m-1 px-1" style="background-color: #dcd5b2;">gongxi gongxi</div>
+                <div class="track m-1 px-1" style="background-color: #dcd5b2;">happy w u</div>
+            </div>
+        </section>
+        <section>
+            <h2 class="section-header">String segmentation</h2>
+        </section>
+        <section>
+            <h2 class="section-header">Creating the playlist</h2>
+        </section>
+        <section>
+            <h2 class="section-header">Coda: server-sent events</h2>
+        </section>
+        <section>
+            <h2 class="section-header">Final thoughts</h2>
         </section>
     </article>
 
@@ -38,7 +152,7 @@
             sectionHeader.style.marginBottom = "1rem";
 
             var hashIcon = document.createElement("a");
-            hashIcon.textContent = (index + 1).toLocaleString('en-US', { minimumIntegerDigits: 2, useGrouping: false }) + " ";
+            hashIcon.textContent = (index).toLocaleString('en-US', { minimumIntegerDigits: 2, useGrouping: false }) + " ";
             hashIcon.href = "#" + kebabCase(sectionHeader.textContent);
             sectionHeader.prepend(hashIcon);
         })

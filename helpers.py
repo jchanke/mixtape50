@@ -233,7 +233,7 @@ def clean_title(title):
     Cleans title by performing the following transformations in order:
      - Remove substrings enclosed in (...) or [...] and preceding whitespace (using regex greedy matching)
      - Remove " - " and substring after 
-     - Remove " feat(.)", " ft(.)", or " featuring" and substring after
+     - Remove " feat.", " ft(.)", or " featuring" and substring after
 
     https://stackoverflow.com/questions/14596884/remove-text-between-and
     """
@@ -245,7 +245,7 @@ def clean_title(title):
     title = re.sub(r" - .*", "", title)
 
     # Remove " feat(.) ", " ft(.) ", or " featuring " (but not "feature") and substring after
-    title = re.sub(r"\W+((feat|ft)[:\.]?|featuring)\s.*", "", title)
+    title = re.sub(r"\W+(ft[:.]?|feat[:.]|featuring)\s.*", "", title)
     
     return title
 
