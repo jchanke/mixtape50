@@ -1,8 +1,6 @@
 # mixtape50
 
-Creates a Spotify playlist that spells out a message.
-
-Video demo: 
+Creates a Spotify playlist that spells out a message. View the about page (here)[https://jchanke.github.io/mixtape50].
 
 - [1. Installation (beginner-friendly!)](#1-installation-beginner-friendly)
     - [1.1. Clone the repository](#11-clone-the-repository)
