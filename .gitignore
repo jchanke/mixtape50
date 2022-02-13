@@ -131,3 +131,4 @@ dmypy.json
 # Project files
 tracks-small.csv
 tracks.csv
+test.py
