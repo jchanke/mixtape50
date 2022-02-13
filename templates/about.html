@@ -235,7 +235,7 @@
             <h2 class="section-header">Final thoughts</h2>
             <p>If you've made it this far, please accept my sincere thanks - it means a lot to me! If you have any comments or suggestions for improvement, please feel free to contact me, or make a merge request.</p>
             <h3>Limitations and extensions</h3>
-            <p>There are quite a few features I'd hoped to implement, but lacked the time / will / technical ability to do so. I may refactor my code and attempt it in future, and I certainly welcome contributors:</p>
+            <p>There are quite a few features I'd have liked to implement but for my lack of time, will, and technical ability. I may refactor my code and attempt to do so in future. If it is interesting or of value to you, you are most welcome to contribute!</p>
             <ul>
                 <li><b>Improved track title cleaning.</b> There are still a few edge cases, like "I'm Not Okay (I Promise)" (by My Chemical Romance) - this would match <code>i'm not okay</code>, but not <code>i'm not okay, i promise!</code>. Additionally, to reduce the chances of a message tripping up, I'd like to allow, say, the word <code>you</code> to match both "you" and "u", or <code>want to</code> to match "want to", "wanna", or even "wna", in both directions.</li>
                 <li><b>Updating the cache into a SQL database directly.</b> Common queries could be cached into a SQL database instead of a python dictionary, allowing for caching to persist between sessions.</li>
@@ -245,10 +245,10 @@
             <h3>Lessons learnt</h3>
             <p>This project felt very apt as a capstone for the CS50x course. It essentially tied together concepts from the entire course, including</p>
             <ul>
-                <li>Algorithms and data structures: in implementing the string segmentation algorithm,</li>
-                <li>SQL: in constructing the database lookups,</li>
-                <li>HTML, CSS, and JavaScript: in designing the website,</li>
-                <li>Flask and HTTP protocols: in putting together the app, and learning the EventSource protocol and more about APIs in general.</li>
+                <li><b>Algorithms and data structures:</b> in implementing the string segmentation algorithm,</li>
+                <li><b>SQL:</b> in constructing the database lookups,</li>
+                <li><b>HTML, CSS, and JavaScript:</b> in designing the website,</li>
+                <li><b>Flask and HTTP protocols:</b> in putting together the app, and learning the EventSource protocol and more about APIs in general.</li>
             </ul>
             <p>This was Mixtape50!</p>
         </section>
