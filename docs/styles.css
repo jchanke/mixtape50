@@ -1,0 +1,114 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400;1,500;1,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&display=swap');
+
+/* Change default font */
+body {
+    font: 400 16px/24px "DM Sans", var(--bs-body-font-family);
+    font-feature-settings: "ss03";
+}
+
+a {
+    text-decoration-line: none !important;
+} 
+
+a:hover {
+    transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out;
+}
+
+article {
+    width: 620px !important;
+    padding: 0 15px;
+}
+
+@media (max-width: 575.98px) {
+    article {
+        width: auto !important;
+        padding: 0 25px;
+    }
+}
+
+h1 {
+    font-weight: 700;
+    letter-spacing: -0.05em;
+}
+
+h2 {
+    font-family: "DM Mono", monospace;
+    font-weight: 300;
+    font-size: calc(1rem + 0.9vw);
+}
+
+code {
+    font-family: "DM Mono", monospace;
+    font-weight: bold;
+    background-color: #073642;
+    border-radius: 10px;
+    padding: 0 5px;
+}
+
+/* Size for brand */
+nav .navbar-brand {
+    font-size: xx-large;
+}
+
+/* Give logos URL behavior */
+a path {
+    transition: fill .15s ease-in-out;
+}
+
+a:hover path {
+    transition: fill .15s ease-in-out;
+}
+
+a:hover path#spotify-logo {
+    fill: #0a58ca;
+}
+
+a:hover path#github-logo {
+    fill: rgba(255,255,255,.75);
+}
+
+/* index.html */
+.form-control {
+    background-color: transparent !important;
+    font-size: 3em;
+    font-weight: bold;
+    color: white !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.form-control::placeholder {
+    font-weight: bold;
+    color: hsl(220, 4%, 76%);
+    opacity: 1;
+}
+
+@media (max-width: 575.98px)
+{
+    .form-control {
+        font-size: 2em;
+    }
+}
+
+/* creating.html */
+#tracks-list {
+    line-height: 1.7em;
+}
+
+/* Highlighting for tracks in tracks-list (adapted from https://julian.digital/) */
+#tracks-list .track {
+    color: #4B4B4B;
+    text-decoration: none;
+    background-color: #F2E39B;
+    border-radius: 5px;
+}
+
+/* about.html */
+.section-header a {
+    color: #5e5e5e;
+}
+
+.section-header a:hover {
+    color: #6e6e6e;
+}
