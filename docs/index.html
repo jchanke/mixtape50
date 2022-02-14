@@ -173,20 +173,20 @@
                     <p>One key feature of this problem is that segmentations compose. If we find a valid word in the message, then splitting the remaining sentence substring (which we might call the "submessage") is <em>also a string segmentation problem</em>.</p>
                     <p>The problem's structure - that the given problem can be solved by first solving smaller subproblems of the same kind - lends it well to a recursive approach. Consider the short code snippet below:</p>
                     <pre><code style="background-color: #073642; font-weight: normal;" class="language-python hljs"><span class="hljs-keyword">def</span> <span class="hljs-title function_">wordBreak</span>(<span class="hljs-params">message, dictionary, output = []</span>):
-            <span class="hljs-comment"># Base case</span>
-            <span class="hljs-keyword">if</span> message == <span class="hljs-string">""</span>:
-                <span class="hljs-built_in">print</span>(output)
-                <span class="hljs-keyword">return</span>
-            <span class="hljs-comment"># Recursive case</span>
-            <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-built_in">len</span>(message)):
-                word = message[:<span class="hljs-built_in">len</span>(message) - i]
-                sub_message = message[<span class="hljs-built_in">len</span>(message) - i:]
-                <span class="hljs-keyword">if</span> word <span class="hljs-keyword">in</span> dictionary:
-                    <span class="hljs-title functino_">wordBreak</span>(message = sub_message,
-                              dictionary = dictionary,
-                              output = output + [word])
-            <span class="hljs-comment"># Failure case</span>
-            <span class="hljs-keyword">return None</span></code></pre>
+    <span class="hljs-comment"># Base case</span>
+    <span class="hljs-keyword">if</span> message == <span class="hljs-string">""</span>:
+        <span class="hljs-built_in">print</span>(output)
+        <span class="hljs-keyword">return</span>
+    <span class="hljs-comment"># Recursive case</span>
+    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-built_in">len</span>(message)):
+        word = message[:<span class="hljs-built_in">len</span>(message) - i]
+        sub_message = message[<span class="hljs-built_in">len</span>(message) - i:]
+        <span class="hljs-keyword">if</span> word <span class="hljs-keyword">in</span> dictionary:
+            <span class="hljs-title functino_">wordBreak</span>(message = sub_message,
+                      dictionary = dictionary,
+                      output = output + [word])
+    <span class="hljs-comment"># Failure case</span>
+    <span class="hljs-keyword">return None</span></code></pre>
                     <p><code>wordBreak</code> is a function that takes a 'dictionary' of valid words and a message string as input, and prints <em>all possible segmentations</em> to the console. Like other recursive algorithms, it handles a base case and recursive case. (You can tinker with <a href="https://replit.com/@JosephChan2/Mixtape50">this code snippet</a> to run the program here.)</p>
                     <p>In the base case (the empty message string <code>""</code>), we print the output to the console, which defaults to the empty list.</p>
                     <p>In the recursive case,</p>
