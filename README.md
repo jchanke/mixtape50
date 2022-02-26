@@ -4,7 +4,7 @@ Creates a Spotify playlist that spells out a message. View the about page [here]
 
 - [1. Installation (beginner-friendly!)](#1-installation-beginner-friendly)
     - [1.1. Clone the repository](#11-clone-the-repository)
-    - [1.2 Create a virtual environment](#12-create-a-virtual-environment)
+    - [1.2. Create a virtual environment](#12-create-a-virtual-environment)
     - [1.3. Install dependencies](#13-install-dependencies)
     - [1.4. Get the API keys from Spotify](#14-get-the-api-keys-from-spotify)
     - [1.5. Authorise mixtape50](#15-authorise-mixtape50)
