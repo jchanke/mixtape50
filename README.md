@@ -2,13 +2,14 @@
 
 Creates a Spotify playlist that spells out a message. View the about page [here](https://jchanke.github.io/mixtape50).
 
-- [1. Installation (beginner-friendly!)](#1-installation-beginner-friendly)
+- [mixtape50](#mixtape50)
+  - [1. Installation (beginner-friendly!)](#1-installation-beginner-friendly)
     - [1.1. Clone the repository](#11-clone-the-repository)
-    - [1.2. Create a virtual environment](#12-create-a-virtual-environment)
+    - [1.2 Create a virtual environment](#12-create-a-virtual-environment)
     - [1.3. Install dependencies](#13-install-dependencies)
     - [1.4. Get the API keys from Spotify](#14-get-the-api-keys-from-spotify)
     - [1.5. Authorise mixtape50](#15-authorise-mixtape50)
-- [2. Run the app](#2-run-the-app)
+  - [2. Run the app](#2-run-the-app)
 
 ## 1. Installation (beginner-friendly!)
 
@@ -16,25 +17,27 @@ Ensure you have Python 3 installed on your machine.
 
 ### 1.1. Clone the repository
 
-For example, to clone this project to a new folder (which you might name `mixtape50`):
+This creates a new folder `mixtape50` containing the repository (a local copy of these files) on your computer.
 
 ```bash
-~ $ mkdir mixtape50
-~ $ cd mixtape50
-~/mixtape50 $ git clone https://github.com/jchanke/mixtape50.git
+~ $ git clone https://github.com/jchanke/mixtape50.git
 ```
-
-This creates a local copy of the files on your computer.
 
 ### 1.2 Create a virtual environment
 
 Once in your folder, run this command to create a 'virtual environment'. (That way whatever python libraries you install won't interfere with your existing python setup. Pretty neat, huh?)
 
 ```bash
-~/mixtape50 $ python -m venv venv
+~/mixtape50 $ python -m venv .venv
 ```
 
-This creates a virtual environment called `venv` inside the `mixtape50` folder:
+This creates a virtual environment called `.venv` inside the `mixtape50` folder. To activate it run
+
+```bash
+~/mixtape50 $ source .venv/bin/activate
+```
+
+and you should now see
 
 ```bash
 (venv) ~/mixtape50 $
@@ -79,7 +82,7 @@ In the terminal, start the `helpers.py` module (in interactive `-i` mode) and ca
 (venv) ~/mixtape50 $ python -i helpers.py
 ```
 ```python
->>> search_spotipy("track: hello world!", type="track", limit=50)
+>>> sp.search(q="track: hello world!", type="track", limit=50)
 ```
 
 A page should open, allowing you to sign into your Spotify account.
