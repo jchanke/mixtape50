@@ -97,5 +97,5 @@ Open [http://127.0.0.1:5000](http://127.0.0.1:5000) to view the app!
 
 ### 2.1 Authorize mixtape50 to create playlists in your Spotify account
 
-To do this, visit [localhost:5000/login`](localhost:5000/login) to login to Spotify.
-And if you'd like to logout, visit [localhost:5000/logout`](localhost:5000/logout).
+To do this, visit [localhost:5000/login](localhost:5000/login) to login to Spotify.
+And if you'd like to logout, visit [localhost:5000/logout](localhost:5000/logout).
