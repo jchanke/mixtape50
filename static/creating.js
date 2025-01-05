@@ -22,8 +22,7 @@ function addPrefix(event) {
     console.log("add: " + event.data);
 
     // First, lock in previous track
-    if (eventList.lastChild != null)
-    {
+    if (eventList.lastChild != null) {
         eventList.lastChild.className = "track m-1 px-1";
     }
 
@@ -56,10 +55,9 @@ function getSongs(event) {
 
     // Parse songsList as a JSON object
     var songsList = JSON.parse(event.data);
-    
+
     // Log each song in songsList
-    for (var i = 0; i < songsList.length; i++)
-    {
+    for (var i = 0; i < songsList.length; i++) {
         console.log(songsList[i]);
     }
 }

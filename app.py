@@ -1,4 +1,5 @@
-# Spotify API accessed via Spotipy library https://spotipy.readthedocs.io/en/2.19.0/
+# Spotify API accessed via Spotipy library
+# https://spotipy.readthedocs.io/en/2.19.0/
 
 from crypt import methods
 import os
@@ -9,7 +10,18 @@ from urllib.request import HTTPBasicAuthHandler
 import requests
 import json
 
-from flask import Flask, Response, flash, make_response, redirect, render_template, request, session, url_for, jsonify
+from flask import (
+    Flask,
+    Response,
+    flash,
+    make_response,
+    redirect,
+    render_template,
+    request,
+    session,
+    url_for,
+    jsonify,
+)
 from tempfile import mkdtemp
 from werkzeug.security import check_password_hash, generate_password_hash
 from markupsafe import escape
@@ -23,45 +35,57 @@ app = Flask(__name__)
 # Ensure templates are auto-reloaded
 app.config["TEMPLATES_AUTO_RELOAD"] = True
 
-@app.route("/", methods = ["GET", "POST"])
-def index():
-    if request.method == "POST":
 
+@app.route("/", methods=["GET", "POST"])
+def index():
+    # POST: User submits message
+    if request.method == "POST":
         message = request.form.get("message")
-        results = search_message(message = message)
+        results = search_message(message=message)
 
         # If successful, send results to /creating via SSE
         if results:
-            announcer.announce(format_sse(event = "send songs", data = json.dumps(results)))
-            announcer.announce(format_sse(event = "send playlist", data = create_playlist(results)))
+            announcer.announce(
+                format_sse(
+                    event="send songs",
+                    data=json.dumps(results)))
+            announcer.announce(
+                format_sse(
+                    event="send playlist",
+                    data=create_playlist(results))
+            )
 
         # Tell /creating via SSE that results failed
         else:
-            announcer.announce(format_sse(event = "failed"))
+            announcer.announce(format_sse(event="failed"))
 
         return render_template("index.html")
-    
+
     else:
         return render_template("index.html")
-    
+
 
 @app.route("/listen")
 def listen():
-    
+
     def stream():
-        messages = announcer.listen() # Queue object is created in announcer.listeners & returned to messages
-        
+        # Queue object is created in announcer.listeners & returned to messages
+        messages = announcer.listen()
+
         while True:
-            message = messages.get(block=True) # If no messages in messages, "block" (pause) execution until it arrives
+            # If no messages in messages, "block" (pause) execution until it
+            # arrives
+            message = messages.get(block=True)
             yield message
 
     response = Response(stream(), mimetype="text/event-stream")
     return response
 
 
-@app.route("/creating", methods = ["GET"])
+@app.route("/creating", methods=["GET"])
 def creating():
     return render_template("creating.html")
+
 
 @app.route("/about")
 def about():

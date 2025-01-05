@@ -1,13 +1,27 @@
+<!--
+ This file displays the creating page. It is opened in a separate tab when the 
+ user submits a message. 
+ 
+ It displays 
+  - the status of the mixtape creation, 
+  - the tracks that are being added to the mixtape, and 
+  - (if successful) an embed of the newly-created Spotify playlist. 
+
+  This script relies on `static/creating.js` to update the page dynamically.
+ -->
+
 {% extends "layout.html" %}
 
 {% block title %}
-    Creating Mixtape...
+Creating Mixtape...
 {% endblock %}
 
 {% block main %}
-    <h1 id="status" class="text-center" style="font-size: xxx-large; font-weight: bold; letter-spacing: -0.05em">Searching:</h1>
-    <div id="tracks-list" class="d-flex flex-wrap align-items-center"></div>
-    <br>
-    <div class="d-flex justify-content-center" id="upon-complete"></div>
-    <script src="static/creating.js"></script>
+<h1 id="status" class="text-center"
+    style="font-size: xxx-large; font-weight: bold; letter-spacing: -0.05em">
+    Searching:</h1>
+<div id="tracks-list" class="d-flex flex-wrap align-items-center"></div>
+<br>
+<div class="d-flex justify-content-center" id="upon-complete"></div>
+<script src="static/creating.js"></script>
 {% endblock%}

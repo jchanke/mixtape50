@@ -4,7 +4,10 @@ to the client. Implements the 'server-sent events' (SSE) paradigm.
 
 Contains:
 
-(1) MessageAnnouncer class definition (adapted from: https://maxhalford.github.io/blog/flask-sse-no-deps/)
+(1) Class definitions
+   - MessageAnnouncer: Creates a list of listeners (queue objects) to send
+     messages to.
+     Adapted from: https://maxhalford.github.io/blog/flask-sse-no-deps/)
 
 (2) Helper functions
  - format_sse (formats data into the text/event-stream format, see: https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#event_stream_format)
@@ -12,6 +15,7 @@ Contains:
 
 from typing import Any, List, Dict, Union
 import queue
+
 
 class MessageAnnouncer:
 
@@ -24,11 +28,13 @@ class MessageAnnouncer:
     def listen(self):
         """
         Creates a new queue object, and adds it to self.listeners.
-        Returns the queue object.	
+        Returns the queue object.
         """
-        q = queue.Queue(maxsize = 0) # maxsize = 0 means no maximum length
+        q = queue.Queue(maxsize=0)  # maxsize = 0, so no maximum length
         self.listeners.append(q)
-        self.listeners[-1].put_nowait(format_sse(data = "You have successfully connected."))
+        self.listeners[-1].put_nowait(
+            format_sse(data="You have successfully connected.")
+        )
         return q
 
     def announce(self, message):
@@ -43,10 +49,10 @@ class MessageAnnouncer:
             except queue.Full:
                 del q
 
-def format_sse(event = None, data: str = "") -> str:
+
+def format_sse(event=None, data: str = "") -> str:
     """
     Formats data to the event-stream format.
-
     https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#event_stream_format
     """
     message = f"data: {data}\n\n"
