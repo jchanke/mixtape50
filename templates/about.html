@@ -129,7 +129,8 @@ About
             <code>clean_title</code> and then <code>remove_punctuation</code>.
             We also put the message string through
             <code>remove_punctuation</code>. We then return only the results
-            whose cleaned versions exactly equal the cleaned message string.</p>
+            whose cleaned versions exactly equal the cleaned message string.
+        </p>
         <div id="tracks-list"
             class="d-flex flex-wrap align-items-center justify-content-center"
             style="margin-bottom: 1rem;">
@@ -193,11 +194,13 @@ About
         <p>It turns out that this is a well-known family of problems known as
             <b>string segmentation</b> or <b>word break</b> problems. The goal
             is either to determine if a valid partition exists, or to return one
-            (or all) valid partitions.</p>
+            (or all) valid partitions.
+        </p>
         <p>One key feature of this problem is that segmentations compose. If we
             find a valid word in the message, then splitting the remaining
             sentence substring (which we might call the "submessage") is
-            <em>also a string segmentation problem</em>.</p>
+            <em>also a string segmentation problem</em>.
+        </p>
         <p>The problem's structure - that the given problem can be solved by
             first solving smaller subproblems of the same kind - lends it well
             to a recursive approach. Consider the short code snippet below:</p>
@@ -241,7 +244,8 @@ About
             <code>wordBreak</code>, the loop continues after
             <code>wordBreak</code> has returned - <em>even for successful
                 calls</em>, which print a valid segmentation to the console.
-            This means that all valid segmentations are eventually found.</p>
+            This means that all valid segmentations are eventually found.
+        </p>
         <p>Here's an example (adapted from these <a
                 href="https://courses.cs.duke.edu/fall01/cps130/lectures/lect21.pdf">lecture
                 notes from Duke</a>) to demonstrate:</p>
@@ -264,13 +268,14 @@ About
         <p>Let's consider the time complexity of this algorithm. For a
             <code>message</code> of \(n\) characters, there are \(n-1\) places
             to segment the string. Since each space can either be segmented or
-            not, there are \(2^{n-1}\) possible segmentations.</p>
+            not, there are \(2^{n-1}\) possible segmentations.
+        </p>
         <p>In the worst-case scenario, all possible segmentations are valid, so
             this algorithm runs in \(O(2^{n-1})\) (exponential time). However,
             in the best-case scenario, no sub-string beginning with the first
             character is a valid word, so only \(n\) searches are performed
             before <code>wordBreak</code> exits. So, the algorithm's asymptotic
-            lower-bound is \(\Theta(n)\) (linear time).</p>
+            lower-bound is \(\Omega(n)\) (linear time).</p>
         <h3>Implementation</h3>
         <p>This maps nicely to our problem at hand. We just need to substitute:
         </p>
@@ -282,7 +287,8 @@ About
         </ul>
         <p>In the implementation (the function <code>search_message</code> in
             <code>helpers.py</code>), there are some deviations from the
-            algorithm described above, mostly to reduce runtime.</p>
+            algorithm described above, mostly to reduce runtime.
+        </p>
         <h4>Returning the first result</h4>
         <p>First, like in the algorithm above, <code>search_message</code>
             starts with the longest possible first track title, decrementing by
@@ -291,14 +297,16 @@ About
             <code>search_message</code> is "greedy" - it goes with the longest
             track title starting with the first word (if there is one). This
             generally results in longer track titles, which is more interesting
-            than having, say, a playlist of mostly one-word track titles.</p>
+            than having, say, a playlist of mostly one-word track titles.
+        </p>
         <p>However, <code>search_message</code> returns the first valid
             segmentation <em>and stops</em>, rather than continuing the for
             loop. What this means is that if a valid segmentation exists, both
             algorithms are <em>guaranteed</em> to find it. However, while
             <code>wordBreak</code> generates all valid segmentations (and can
             choose, say, the shortest one), <code>search_message</code> will
-            not.</p>
+            not.
+        </p>
         <h4>Limiting track title length</h4>
         <p>Additionally, another speed-up can be achieved by setting a limit on
             the number of words to search at a time. Some analysis of <a
@@ -323,20 +331,23 @@ About
                 href="https://www.espressoenglish.net/the-100-most-common-words-in-english/">100
                 most common words in English</a>, only about 20 or so had even a
             single matching track, causing most messages to trip up on words
-            like <code>the</code> or <code>has</code>.</p>
+            like <code>the</code> or <code>has</code>.
+        </p>
         <p>The first fix was to additionally query a <a
                 href="https://www.kaggle.com/rodolfofigueroa/spotify-12m-songs">Kaggle
                 database of 1.2 million+ Spotify tracks</a> if the naive Spotify
             search did not return results (implemented in
             <code>search_db</code>). For some reason, this significantly
             improved coverage, so that about 80 of the 100 most common English
-            words could be matched with Spotify tracks.</p>
+            words could be matched with Spotify tracks.
+        </p>
         <h4>Memoization</h4>
         <p>The next change was to 'cache' successful and unsuccessful queries.
             Some substrings, although not segmentable, took a long time to
             verify. Consider the hypothetical unsegementable substring
             <code>handsaturnspin<span style="text-decoration: underline;">haha</span></code>
-            in the example above.</p>
+            in the example above.
+        </p>
         <p><code>handsaturnspin</code> can be split six different ways:</p>
         <div class="d-flex flex-wrap justify-content-center mx-5"
             style="margin-bottom: 1rem;">
@@ -355,7 +366,8 @@ About
             <code>"heart"</code>. This seems wasteful: if
             <code>handsaturnspin<span style="text-decoration: underline;">haha</span></code>
             is unsegmentable, there should be no need to search it on both
-            <code>"he art"</code> and <code>"heart"</code>.</p>
+            <code>"he art"</code> and <code>"heart"</code>.
+        </p>
         <p>In our code, if the submessage is found to be unsegmentable, it is
             added to <code>failed_queries</code>, a set of unsegmentable
             substrings. The next time it is selected,
@@ -364,20 +376,24 @@ About
             results is known as 'memoization' in <a
                 href="https://en.wikipedia.org/wiki/Functional_programming">functional
                 programming</a>, a computing paradigm that minimises repeated
-            calculations, decreasing the runtime.</p>
+            calculations, decreasing the runtime.
+        </p>
         <p>Similarly, successful segmentations (as returned by
             <code>search_message</code>) are stored in a python dictionary,
-            <code>query_lookup</code>, for future reference.</p>
+            <code>query_lookup</code>, for future reference.
+        </p>
         <h3>Putting it all together</h3>
         <p>For each submessage:</p>
         <ul>
             <li>If the submessage is found in <code>failed_queries</code>, we
-                <code>continue</code> to the next iteration of the loop.</li>
+                <code>continue</code> to the next iteration of the loop.
+            </li>
             <li>Otherwise, we loop through three search functions in order:
                 <code>search_lookup</code>, <code>search_spotipy</code>, and
                 <code>search_db</code>. These check the cache of successful
                 previous queries, Spotify (via its API), and our Kaggle database
-                respectively.</li>
+                respectively.
+            </li>
         </ul>
     </section>
     <section>
@@ -389,7 +405,8 @@ About
             library to create a playlist, and add tracks to it. The Spotify API
             relies on the OAuth 2.0 authorisation protocol, but the
             implementation details are thankfully abstracted away by the
-            <code>spotipy</code> library.</p>
+            <code>spotipy</code> library.
+        </p>
     </section>
     <section>
         <h2 class="section-header">Coda: server-sent events</h2>
@@ -403,7 +420,8 @@ About
             (the browser)? In the typical HTTP paradigm, the server
             <em>only</em> sends a response after the client sends a request.
             What we want to do is allow the server to send a response
-            unilaterally, without a prior request from the client.</p>
+            unilaterally, without a prior request from the client.
+        </p>
         <p>After considering a few alternatives like <a
                 href="https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API">WebSocket</a>,
             I decided to use <a
@@ -419,7 +437,8 @@ About
             <li>Once the EventSource connection is opened, the server can send
                 updates to the client via by setting the
                 <code>Content-Type</code> header to
-                <code>text/event-stream</code>.</li>
+                <code>text/event-stream</code>.
+            </li>
             <li>When the search has completed, a final message is sent to the
                 client to close the connection.</li>
         </ul>
@@ -428,7 +447,8 @@ About
             transmissions are handled via a MessageAnnouncer object in
             <code>announcer.py</code> (adapted from <a
                 href="https://maxhalford.github.io/blog/flask-sse-no-deps/">this
-                article</a> by Max Halford).</p>
+                article</a> by Max Halford).
+        </p>
     </section>
     <section>
         <h2 class="section-header">Final thoughts</h2>
@@ -449,7 +469,8 @@ About
                 the chances of a message tripping up, I'd like to allow, say,
                 the word <code>you</code> to match both "you" and "u", or
                 <code>want to</code> to match "want to", "wanna", or even "wna",
-                in both directions.</li>
+                in both directions.
+            </li>
             <li><b>Updating the cache into a SQL database directly.</b> Common
                 queries could be cached into a SQL database instead of a python
                 dictionary, allowing for caching to persist between sessions.
@@ -464,13 +485,14 @@ About
                 (Actually, if you open the browser console, you'll see the song
                 data is actually sent over to the client - I just couldn't
                 figure out the JavaScript to make the selection happen.)</li>
-            <li><b>Making the app thread- and proces-safe.</b> One serious bug
+            <li><b>Making the app thread- and process-safe.</b> One serious bug
                 is that the app currently cannot handle simultaneous requests -
                 one user's input would cause server-sent events to be broadcast
                 to not only them, but also other users on the
                 <code>/creating</code> route. I explored using Flask's
                 request-context <code>g</code> object to create a separate
-                "channel" for each user, but it proved beyond me.</li>
+                "channel" for each user, but it proved beyond me.
+            </li>
         </ul>
         <h3>Lessons learnt</h3>
         <p>This project felt very apt as a capstone for the CS50x course. It

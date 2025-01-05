@@ -8,8 +8,8 @@ Creates a Spotify playlist that spells out a message. View the about page [here]
     - [1.2 Create a virtual environment](#12-create-a-virtual-environment)
     - [1.3. Install dependencies](#13-install-dependencies)
     - [1.4. Get the API keys from Spotify](#14-get-the-api-keys-from-spotify)
-    - [1.5. Authorise mixtape50](#15-authorise-mixtape50)
   - [2. Run the app](#2-run-the-app)
+    - [2.1 Authorize mixtape50 to create playlists in your Spotify account](#21-authorize-mixtape50-to-create-playlists-in-your-spotify-account)
 
 ## 1. Installation (beginner-friendly!)
 
@@ -74,19 +74,6 @@ One last thing! From the dashboard, get the **Client ID** and **Client Secret** 
 
 Now you're all set up!
 
-### 1.5. Authorise mixtape50
-
-In the terminal, start the `helpers.py` module (in interactive `-i` mode) and call the `search_spotipy` method:
-
-```bash
-(venv) ~/mixtape50 $ python -i helpers.py
-```
-```python
->>> sp.search(q="track: hello world!", type="track", limit=50)
-```
-
-A page should open, allowing you to sign into your Spotify account.
-
 ## 2. Run the app
 
 In your terminal window, run:
@@ -107,3 +94,8 @@ If successful, you should see text like this:
 ```
 
 Open [http://127.0.0.1:5000](http://127.0.0.1:5000) to view the app!
+
+### 2.1 Authorize mixtape50 to create playlists in your Spotify account
+
+To do this, visit `localhost:5000/login` to login to Spotify.
+And if you'd like to logout, visit `localhost/logout`.

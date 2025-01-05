@@ -21,6 +21,7 @@ from flask import (
     url_for,
     jsonify,
 )
+
 from flask_session import Session
 from tempfile import mkdtemp
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -72,6 +73,19 @@ def index():
         return render_template("index.html")
 
 
+# DEBUG-ONLY: print current contents of session
+# TODO: Remove before production
+@app.route("/session")
+def session_contents():
+    return jsonify(session)
+
+
+@app.route("/session-clear")
+def session_clear():
+    session.clear()
+    return redirect("session")
+
+
 @app.route("/login")
 def login():
     sp = get_spotify_oauth(session)
@@ -84,8 +98,8 @@ def callback():
     sp = get_spotify_oauth(session)
     session.clear()
     code = request.args.get("code")
-    token_info = sp.get_access_token(code)
-    session["spotify_token"] = token_info
+    _ = sp.get_access_token(code)  # Caches token --> session["token_info"]
+    flash("You have been logged in.")
     return redirect(url_for("index"))
 
 
@@ -99,6 +113,7 @@ def status():
 @app.route("/logout")
 def logout():
     session.clear()
+    flash("You have been logged out.")
     return redirect(url_for("index"))
 
 
