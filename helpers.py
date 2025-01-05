@@ -47,8 +47,8 @@ SCOPE = "playlist-modify-public playlist-modify-private playlist-read-private"
 
 
 # Initialize Spotify OAuth with FlaskSessionCacheHandler (default: CacheFileHandler)
-def get_spotify_oauth(request_session):
-    cache_handler = FlaskSessionCacheHandler(session=request_session)
+def get_spotify_oauth(session):
+    cache_handler = FlaskSessionCacheHandler(session=session)
     return SpotifyOAuth(
         client_id=SPOTIPY_CLIENT_ID,
         client_secret=SPOTIPY_CLIENT_SECRET,

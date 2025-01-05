@@ -1,7 +1,6 @@
 # Spotify API accessed via Spotipy library
 # https://spotipy.readthedocs.io/en/2.19.0/
 
-from crypt import methods
 import os
 import re
 import sqlite3
@@ -42,6 +41,7 @@ app = Flask(__name__)
 app.config["TEMPLATES_AUTO_RELOAD"] = True
 
 # Configure server-side sessions to store user's Spotify credentials
+# TODO: Currently using filesystem storage, but can be changed to Redis, etc.
 app.config["SESSION_TYPE"] = "filesystem"
 app.config["SECRET_KEY"] = os.getenv("FLASK_SECRET_KEY")
 app.config["SESSION_PERMANENT"] = False
