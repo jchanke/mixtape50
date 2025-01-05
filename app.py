@@ -22,16 +22,30 @@ from flask import (
     url_for,
     jsonify,
 )
+from flask_session import Session
 from tempfile import mkdtemp
 from werkzeug.security import check_password_hash, generate_password_hash
 from markupsafe import escape
 
-from helpers import search_message, create_playlist, announcer, CLIENT_SIDE_URL, PORT
+from helpers import (
+    search_message,
+    create_playlist,
+    announcer,
+    CLIENT_SIDE_URL,
+    PORT,
+    get_spotify_oauth,
+)
 from announcer import format_sse
 
 # Configure app
 app = Flask(__name__)
 app.config["TEMPLATES_AUTO_RELOAD"] = True
+
+# Configure server-side sessions to store user's Spotify credentials
+app.config["SESSION_TYPE"] = "filesystem"
+app.config["SECRET_KEY"] = os.getenv("FLASK_SECRET_KEY")
+app.config["SESSION_PERMANENT"] = False
+Session(app)
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -56,6 +70,36 @@ def index():
 
     else:
         return render_template("index.html")
+
+
+@app.route("/login")
+def login():
+    sp = get_spotify_oauth(session)
+    auth_url = sp.get_authorize_url()
+    return redirect(auth_url)
+
+
+@app.route("/callback")
+def callback():
+    sp = get_spotify_oauth(session)
+    session.clear()
+    code = request.args.get("code")
+    token_info = sp.get_access_token(code)
+    session["spotify_token"] = token_info
+    return redirect(url_for("index"))
+
+
+@app.route("/status")
+def status():
+    if session.get("token_info", None):
+        return jsonify({"logged in": True, "token_info": session["token_info"]})
+    return jsonify({"logged in": False})
+
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect(url_for("index"))
 
 
 @app.route("/listen")

@@ -23,8 +23,11 @@ import re
 import sqlite3
 import time
 
+from flask import session
+
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
+from spotipy.cache_handler import FlaskSessionCacheHandler
 
 from announcer import MessageAnnouncer, format_sse
 
@@ -39,17 +42,25 @@ SPOTIPY_CLIENT_ID = os.getenv("SPOTIPY_CLIENT_ID")
 SPOTIPY_CLIENT_SECRET = os.getenv("SPOTIFY_CLIENT_SECRET")
 SPOTIPY_REDIRECT_URI = f"{CLIENT_SIDE_URL}:{PORT}/callback"
 
-
-# Set up Spotipy
+# Required permissions for Spotify API
 SCOPE = "playlist-modify-public playlist-modify-private playlist-read-private"
-sp = spotipy.Spotify(
-    auth_manager=SpotifyOAuth(
-        # client_id=SPOTIPY_CLIENT_ID,
-        # client_secret=SPOTIPY_CLIENT_SECRET,
+
+
+# Initialize Spotify OAuth with FlaskSessionCacheHandler (default: CacheFileHandler)
+def get_spotify_oauth(request_session):
+    cache_handler = FlaskSessionCacheHandler(session=request_session)
+    return SpotifyOAuth(
+        client_id=SPOTIPY_CLIENT_ID,
+        client_secret=SPOTIPY_CLIENT_SECRET,
         redirect_uri=SPOTIPY_REDIRECT_URI,
         scope=SCOPE,
+        cache_handler=cache_handler,
+        show_dialog=True,
     )
-)
+
+
+# Set up Spotipy
+sp = spotipy.Spotify(auth_manager=get_spotify_oauth(session))
 
 # Instantiate a MessageAnnouncer object
 announcer = MessageAnnouncer()
