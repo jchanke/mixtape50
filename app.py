@@ -31,8 +31,6 @@ from announcer import format_sse
 
 # Configure app
 app = Flask(__name__)
-
-# Ensure templates are auto-reloaded
 app.config["TEMPLATES_AUTO_RELOAD"] = True
 
 
@@ -45,14 +43,9 @@ def index():
 
         # If successful, send results to /creating via SSE
         if results:
+            announcer.announce(format_sse(event="send songs", data=json.dumps(results)))
             announcer.announce(
-                format_sse(
-                    event="send songs",
-                    data=json.dumps(results)))
-            announcer.announce(
-                format_sse(
-                    event="send playlist",
-                    data=create_playlist(results))
+                format_sse(event="send playlist", data=create_playlist(results))
             )
 
         # Tell /creating via SSE that results failed
