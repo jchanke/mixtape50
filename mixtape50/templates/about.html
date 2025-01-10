@@ -1,0 +1,566 @@
+{% extends "layout.html" %}
+
+{% block title %}
+About
+{% endblock %}
+
+{% block main %}
+<article class="container">
+    <h1>About this site </h1>
+    <p>This is <b>Mixtape50</b>, a final project for <a
+            href="https://cs50.harvard.edu/x/">CS50's Introduction to Computer
+            Science</a>.</p>
+    <section>
+        <h2 class="section-header">Description</h2>
+        <p>Mixtape50 takes a user-given message as input, and returns a playlist
+            of songs whose titles - when put together - form that same message.
+            For example, converting this:</p>
+        <p class="mx-5"
+            style="background-color: #073642; border-radius: 4px; padding: 4px 12px;">
+            <code>Dear Prudence: I'm so tired. I don't want to spoil the party. When I get home, I'll follow the sun. I'll be back, Rocky Raccoon.</code>
+        </p>
+        <p>...to this:</p>
+        <div id="tracks-list" class="d-flex flex-wrap align-items-center"
+            style="margin: 0 44px 1rem;">
+            <div class="track m-1 px-1">dear prudence</div>
+            <div class="track m-1 px-1">im so tired</div>
+            <div class="track m-1 px-1">i dont want to spoil the party</div>
+            <div class="track m-1 px-1">when i get home</div>
+            <div class="track m-1 px-1">ill follow the sun</div>
+            <div class="track m-1 px-1">ill be back</div>
+            <div class="track m-1 px-1">rocky raccoon</div>
+        </div>
+        <p>Kind of like a <a
+                href="https://en.wikipedia.org/wiki/Mixtape#Aesthetic">mixtape</a>
+            - an artfully put together cassette of songs that might suggest a
+            mood or message - only considerably less artful, and a lot more
+            direct.</p>
+        <p>Admittedly, this example is a little contrived. But it makes clear
+            some of the subproblems we need to solve.</p>
+        <p>Let's break them down.</p>
+    </section>
+    <section>
+        <h2 class="section-header">Title cleaning</h2>
+        <p>Let's say we want to include the word <code>happy</code> in the song.
+            If we search Spotify, we end up with 39 distinct titles. Here is a
+            curated subset of that, to illustrate:</p>
+        <table class="table table-sm table-dark">
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Track</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <th scope="row">1</th>
+                    <td>Happy</td>
+                </tr>
+                <tr>
+                    <th scope="row">2</th>
+                    <td>Happy - From "Despicable Me 2"</td>
+                </tr>
+                <tr>
+                    <th scope="row">3</th>
+                    <td>We Were Happy (Taylor's Version) (From The Vault)</td>
+                </tr>
+                <tr>
+                    <th scope="row">4</th>
+                    <td>Happy Birthday to You (Instrumental) [Short Edit 1]</td>
+                </tr>
+                <tr>
+                    <th scope="row">5</th>
+                    <td>GongXi GongXi (Happy Lunar New Year!)</td>
+                </tr>
+                <tr>
+                    <th scope="row">6</th>
+                    <td>Happy w u (feat. Jason Dhakal)</td>
+                </tr>
+            </tbody>
+        </table>
+        <p><b>1</b> is an exact match. <b>2</b> is a close match: we mentally
+            filter out the metadata portion when we read, and all that's left is
+            the message string.</p>
+        <p>The rest do not match, but are good examples of some <a
+                href="https://cdn.smehost.net/helpcentertheorchardcom-orchardprod/wp-content/uploads/2019/07/Spotify-Metadata-Style-Guide-v.2.pdf">common
+                metadata conventions</a> in Spotify track titles.</p>
+        <ul>
+            <li>The artist name, version information, and title translations;
+                within parentheses (<b>3</b>, <b>5</b>) or square brackets
+                (<b>4</b>).</li>
+            <li>A featured artist, after <code>feat.</code> and within
+                parentheses (<b>6</b>).</li>
+        </ul>
+        <p>We want to format the titles so that <b>1</b> and <b>2</b> will match
+            our message <code>happy</code>, but not the rest. How? Mixtape50
+            cleans the track titles in two steps - <strong>cleaning
+                metadata</strong>, and <strong>removing punctuation</strong>.
+        </p>
+        <p>In the first step, <a
+                href="https://docs.python.org/3/library/re.html">regular
+                expressions</a> are used to clean metadata by checking for some
+            common patterns:</p>
+        <ul>
+            <li>Anything between <code>( )</code> or <code>[ ]</code> (and any
+                number of spaces before that) are removed.</li>
+            <li>Any instances of <code>&blank;-&blank;</code> and everything
+                after are removed.</li>
+            <li>
+                Any instances of
+                <code>&blank;ft&blank;</code>
+                <code>&blank;ft.&blank;</code>
+                <code>&blank;ft:&blank;</code>
+                <code>&blank;feat.&blank;</code>
+                <code>&blank;feat:&blank;</code>
+                <code>&blank;featuring&blank;</code>
+                and everything after are removed, but not
+                <code>feat</code> or <code>feature</code> (both are legitimate
+                words).
+            </li>
+        </ul>
+        <p>These are bundled into <code>clean_title</code>, a function. A second
+            function, <code>remove_punctuation</code> takes the cleaned title as
+            input, and returns a string of words:</p>
+        <ul>
+            <li>composed of only lowercase alpha-numeric characters,</li>
+            <li>separated by single <code>&blank;</code>s.</li>
+        </ul>
+        <p>Putting this together, after searching Spotify, we put it through
+            <code>clean_title</code> and then <code>remove_punctuation</code>.
+            We also put the message string through
+            <code>remove_punctuation</code>. We then return only the results
+            whose cleaned versions exactly equal the cleaned message string.
+        </p>
+        <div id="tracks-list"
+            class="d-flex flex-wrap align-items-center justify-content-center"
+            style="margin-bottom: 1rem;">
+            <div class="track m-1 px-1" style="background-color: #dcd5b2;">Happy
+            </div>
+            <div class="track m-1 px-1" style="background-color: #dcd5b2;">Happy
+                - From "Despicable Me 2"</div>
+            <div class="track m-1 px-1" style="background-color: #dcd5b2;">We
+                Were Happy (Taylor's Version) (From The Vault)</div>
+            <div class="track m-1 px-1" style="background-color: #dcd5b2;">Happy
+                Birthday to You (Instrumental) [Short Edit 1]</div>
+            <div class="track m-1 px-1" style="background-color: #dcd5b2;">
+                GongXi GongXi (Happy Lunar New Year!)</div>
+            <div class="track m-1 px-1" style="background-color: #dcd5b2;">Happy
+                w u (feat. Jason Dhakal)</div>
+        </div>
+        <p class="text-center">▼ <code>clean_title</code></p>
+        <div id="tracks-list"
+            class="d-flex flex-wrap align-items-center justify-content-center"
+            style="margin: 0 44px 1rem;">
+            <div class="track m-1 px-1" style="background-color: #dcd5b2;">Happy
+            </div>
+            <div class="track m-1 px-1" style="background-color: #dcd5b2;">Happy
+            </div>
+            <div class="track m-1 px-1" style="background-color: #dcd5b2;">We
+                Were Happy</div>
+            <div class="track m-1 px-1" style="background-color: #dcd5b2;">Happy
+                Birthday to You</div>
+            <div class="track m-1 px-1" style="background-color: #dcd5b2;">
+                GongXi GongXi</div>
+            <div class="track m-1 px-1" style="background-color: #dcd5b2;">Happy
+                w u</div>
+        </div>
+        <p class="text-center">▼ <code>remove_punctuation</code></p>
+        <div id="tracks-list"
+            class="d-flex flex-wrap align-items-center justify-content-center"
+            style="margin: 0 44px 1rem;">
+            <div class="track m-1 px-1">happy</div>
+            <div class="track m-1 px-1">happy</div>
+            <div class="track m-1 px-1" style="background-color: #dcd5b2;">we
+                were happy</div>
+            <div class="track m-1 px-1" style="background-color: #dcd5b2;">happy
+                birthday to you</div>
+            <div class="track m-1 px-1" style="background-color: #dcd5b2;">
+                gongxi gongxi</div>
+            <div class="track m-1 px-1" style="background-color: #dcd5b2;">happy
+                w u</div>
+        </div>
+    </section>
+    <section>
+        <h2 class="section-header">String segmentation</h2>
+        <p>This is the meat of the problem: having cleaned the user's message
+            (via <code>remove_punctuation</code>), how can we split it into a
+            list of valid songs (found on Spotify)? More generally, given:</p>
+        <ul>
+            <li>a string, and</li>
+            <li>a set of valid substrings (a 'dictionary'),</li>
+        </ul>
+        <p>how can we partition the string into a list of valid substrings?</p>
+        <h3>Theory</h3>
+        <p>It turns out that this is a well-known family of problems known as
+            <b>string segmentation</b> or <b>word break</b> problems. The goal
+            is either to determine if a valid partition exists, or to return one
+            (or all) valid partitions.
+        </p>
+        <p>One key feature of this problem is that segmentations compose. If we
+            find a valid word in the message, then splitting the remaining
+            sentence substring (which we might call the "submessage") is
+            <em>also a string segmentation problem</em>.
+        </p>
+        <p>The problem's structure - that the given problem can be solved by
+            first solving smaller subproblems of the same kind - lends it well
+            to a recursive approach. Consider the short code snippet below:</p>
+        <pre><code style="background-color: #073642; font-weight: normal;" class="language-python hljs"><span class="hljs-keyword">def</span> <span class="hljs-title function_">wordBreak</span>(<span class="hljs-params">message, dictionary, output = []</span>):
+    <span class="hljs-comment"># Base case</span>
+    <span class="hljs-keyword">if</span> message == <span class="hljs-string">""</span>:
+        <span class="hljs-built_in">print</span>(output)
+        <span class="hljs-keyword">return</span>
+    <span class="hljs-comment"># Recursive case</span>
+    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-built_in">len</span>(message)):
+        word = message[:<span class="hljs-built_in">len</span>(message) - i]
+        sub_message = message[<span class="hljs-built_in">len</span>(message) - i:]
+        <span class="hljs-keyword">if</span> word <span class="hljs-keyword">in</span> dictionary:
+            <span class="hljs-title functino_">wordBreak</span>(message = sub_message,
+                      dictionary = dictionary,
+                      output = output + [word])
+    <span class="hljs-comment"># Failure case</span>
+    <span class="hljs-keyword">return None</span></code></pre>
+        <p><code>wordBreak</code> is a function that takes a 'dictionary' of
+            valid words and a message string as input, and prints <em>all
+                possible segmentations</em> to the console. Like other recursive
+            algorithms, it handles a base case and recursive case. (You can
+            tinker with <a href="https://replit.com/@JosephChan2/Mixtape50">this
+                code snippet</a> to run the program here.)</p>
+        <p>In the base case (the empty message string <code>""</code>), we print
+            the output to the console, which defaults to the empty list.</p>
+        <p>In the recursive case,</p>
+        <ul>
+            <li>We segment the <code>message</code> into the <code>word</code>
+                and the remaining <code>sub_message</code>.</li>
+            <li>We keep decreasing the <code>word</code> length until we find a
+                word in the 'dictionary'.</li>
+            <li>If the <code>word</code> is in the 'dictionary', we add the word
+                to the output, and call <code>wordBreak</code> on the remaining
+                substring.</li>
+            <li>If the message is segmentable, the last <code>sub_message</code>
+                will be the empty string <code>""</code>, triggering the base
+                case and printing the segmented output to the console.</li>
+        </ul>
+        <p>Because there is no <code>return</code> statement after calling
+            <code>wordBreak</code>, the loop continues after
+            <code>wordBreak</code> has returned - <em>even for successful
+                calls</em>, which print a valid segmentation to the console.
+            This means that all valid segmentations are eventually found.
+        </p>
+        <p>Here's an example (adapted from these <a
+                href="https://courses.cs.duke.edu/fall01/cps130/lectures/lect21.pdf">lecture
+                notes from Duke</a>) to demonstrate:</p>
+        <pre><code class="language-python hljs" style="font-weight: normal; background-color: #073642"><span class="hljs-meta">&gt;&gt;&gt; </span><span class="hljs-title function_">wordBreak</span>(<span class="hljs-string">"bothearthandsaturnspin"</span>, dictionary)
+[<span class="hljs-string">'both'</span>, <span class="hljs-string">'earth'</span>, <span class="hljs-string">'and'</span>, <span class="hljs-string">'saturn'</span>, <span class="hljs-string">'spin'</span>]
+[<span class="hljs-string">'both'</span>, <span class="hljs-string">'earth'</span>, <span class="hljs-string">'and'</span>, <span class="hljs-string">'sat'</span>, <span class="hljs-string">'urns'</span>, <span class="hljs-string">'pin'</span>]
+[<span class="hljs-string">'both'</span>, <span class="hljs-string">'earth'</span>, <span class="hljs-string">'and'</span>, <span class="hljs-string">'sat'</span>, <span class="hljs-string">'urn'</span>, <span class="hljs-string">'spin'</span>]
+[<span class="hljs-string">'bot'</span>, <span class="hljs-string">'heart'</span>, <span class="hljs-string">'hands'</span>, <span class="hljs-string">'at'</span>, <span class="hljs-string">'urns'</span>, <span class="hljs-string">'pin'</span>]
+[<span class="hljs-string">'bot'</span>, <span class="hljs-string">'heart'</span>, <span class="hljs-string">'hands'</span>, <span class="hljs-string">'at'</span>, <span class="hljs-string">'urn'</span>, <span class="hljs-string">'spin'</span>]
+[<span class="hljs-string">'bot'</span>, <span class="hljs-string">'heart'</span>, <span class="hljs-string">'hands'</span>, <span class="hljs-string">'a'</span>, <span class="hljs-string">'turns'</span>, <span class="hljs-string">'pin'</span>]
+[<span class="hljs-string">'bot'</span>, <span class="hljs-string">'heart'</span>, <span class="hljs-string">'hand'</span>, <span class="hljs-string">'saturn'</span>, <span class="hljs-string">'spin'</span>]
+[<span class="hljs-string">'bot'</span>, <span class="hljs-string">'heart'</span>, <span class="hljs-string">'hand'</span>, <span class="hljs-string">'sat'</span>, <span class="hljs-string">'urns'</span>, <span class="hljs-string">'pin'</span>]
+[<span class="hljs-string">'bot'</span>, <span class="hljs-string">'heart'</span>, <span class="hljs-string">'hand'</span>, <span class="hljs-string">'sat'</span>, <span class="hljs-string">'urn'</span>, <span class="hljs-string">'spin'</span>]
+[<span class="hljs-string">'bot'</span>, <span class="hljs-string">'he'</span>, <span class="hljs-string">'art'</span>, <span class="hljs-string">'hands'</span>, <span class="hljs-string">'at'</span>, <span class="hljs-string">'urns'</span>, <span class="hljs-string">'pin'</span>]
+[<span class="hljs-string">'bot'</span>, <span class="hljs-string">'he'</span>, <span class="hljs-string">'art'</span>, <span class="hljs-string">'hands'</span>, <span class="hljs-string">'at'</span>, <span class="hljs-string">'urn'</span>, <span class="hljs-string">'spin'</span>]
+[<span class="hljs-string">'bot'</span>, <span class="hljs-string">'he'</span>, <span class="hljs-string">'art'</span>, <span class="hljs-string">'hands'</span>, <span class="hljs-string">'a'</span>, <span class="hljs-string">'turns'</span>, <span class="hljs-string">'pin'</span>]
+[<span class="hljs-string">'bot'</span>, <span class="hljs-string">'he'</span>, <span class="hljs-string">'art'</span>, <span class="hljs-string">'hand'</span>, <span class="hljs-string">'saturn'</span>, <span class="hljs-string">'spin'</span>]
+[<span class="hljs-string">'bot'</span>, <span class="hljs-string">'he'</span>, <span class="hljs-string">'art'</span>, <span class="hljs-string">'hand'</span>, <span class="hljs-string">'sat'</span>, <span class="hljs-string">'urns'</span>, <span class="hljs-string">'pin'</span>]
+[<span class="hljs-string">'bot'</span>, <span class="hljs-string">'he'</span>, <span class="hljs-string">'art'</span>, <span class="hljs-string">'hand'</span>, <span class="hljs-string">'sat'</span>, <span class="hljs-string">'urn'</span>, <span class="hljs-string">'spin'</span>]</code></pre>
+        <p>Let's consider the time complexity of this algorithm. For a
+            <code>message</code> of \(n\) characters, there are \(n-1\) places
+            to segment the string. Since each space can either be segmented or
+            not, there are \(2^{n-1}\) possible segmentations.
+        </p>
+        <p>In the worst-case scenario, all possible segmentations are valid, so
+            this algorithm runs in \(O(2^{n-1})\) (exponential time). However,
+            in the best-case scenario, no sub-string beginning with the first
+            character is a valid word, so only \(n\) searches are performed
+            before <code>wordBreak</code> exits. So, the algorithm's asymptotic
+            lower-bound is \(\Omega(n)\) (linear time).</p>
+        <h3>Implementation</h3>
+        <p>This maps nicely to our problem at hand. We just need to substitute:
+        </p>
+        <ul>
+            <li>single characters with <b>cleaned "words"</b>
+                (<code>happy</code>, <code>dont</code>, etc.),</li>
+            <li>valid words with <b>cleaned Spotify track titles</b>, and</li>
+            <li>the look-up 'dictionary' with <b>a search on Spotify</b>.</li>
+        </ul>
+        <p>In the implementation (the function <code>search_message</code> in
+            <code>helpers.py</code>), there are some deviations from the
+            algorithm described above, mostly to reduce runtime.
+        </p>
+        <h4>Returning the first result</h4>
+        <p>First, like in the algorithm above, <code>search_message</code>
+            starts with the longest possible first track title, decrementing by
+            one word each time. When a valid first track title is found, it
+            calls itself on the remaining submessage. In this way,
+            <code>search_message</code> is "greedy" - it goes with the longest
+            track title starting with the first word (if there is one). This
+            generally results in longer track titles, which is more interesting
+            than having, say, a playlist of mostly one-word track titles.
+        </p>
+        <p>However, <code>search_message</code> returns the first valid
+            segmentation <em>and stops</em>, rather than continuing the for
+            loop. What this means is that if a valid segmentation exists, both
+            algorithms are <em>guaranteed</em> to find it. However, while
+            <code>wordBreak</code> generates all valid segmentations (and can
+            choose, say, the shortest one), <code>search_message</code> will
+            not.
+        </p>
+        <h4>Limiting track title length</h4>
+        <p>Additionally, another speed-up can be achieved by setting a limit on
+            the number of words to search at a time. Some analysis of <a
+                href="https://www.kaggle.com/rodolfofigueroa/spotify-12m-songs">a
+                large Spotify track database</a> revealed that most track titles
+            are short - not more than 10 words long. (Most longer track titles
+            are usually either edgy tunes by indie rock bands or long orchestral
+            pieces, both unlikely to be found in a typical message.)</p>
+        <p>Therefore, starting the search for the first word with the entire
+            message seems inefficient, especially for long message strings. In
+            the implementation, a parameter <code>max_search_length</code> is
+            set by default to 10 words. <code>search_message</code> will start
+            the search with just first 10 words (or the message length,
+            whichever is shorter), decrementing to nine words, eight words, and
+            so on.</p>
+        <h4>Database lookups</h4>
+        <p>While <code>wordBreak</code> looked for words in the 'dictionary' (a
+            set), searching Spotify was implemented via an API (in
+            <code>search_spotipy</code> - more on this later.) However, one
+            practical challenge was that many crucial song track titles could
+            not be located. Running <code>search_message</code> on the <a
+                href="https://www.espressoenglish.net/the-100-most-common-words-in-english/">100
+                most common words in English</a>, only about 20 or so had even a
+            single matching track, causing most messages to trip up on words
+            like <code>the</code> or <code>has</code>.
+        </p>
+        <p>The first fix was to additionally query a <a
+                href="https://www.kaggle.com/rodolfofigueroa/spotify-12m-songs">Kaggle
+                database of 1.2 million+ Spotify tracks</a> if the naive Spotify
+            search did not return results (implemented in
+            <code>search_db</code>). For some reason, this significantly
+            improved coverage, so that about 80 of the 100 most common English
+            words could be matched with Spotify tracks.
+        </p>
+        <h4>Memoization</h4>
+        <p>The next change was to 'cache' successful and unsuccessful queries.
+            Some substrings, although not segmentable, took a long time to
+            verify. Consider the hypothetical unsegementable substring
+            <code>handsaturnspin<span style="text-decoration: underline;">haha</span></code>
+            in the example above.
+        </p>
+        <p><code>handsaturnspin</code> can be split six different ways:</p>
+        <div class="d-flex flex-wrap justify-content-center mx-5"
+            style="margin-bottom: 1rem;">
+            <code class="m-1">hands at urns pin</code>
+            <code class="m-1">hands at urn spin</code>
+            <code class="m-1">hands a turn spin</code>
+            <code class="m-1">hand saturn spin</code>
+            <code class="m-1">hand sat urn spin</code>
+            <code class="m-1">hand sat urns pin</code>
+        </div>
+        <p>Each time this full substring is searched, each possibility will be
+            generated, only to find that <code>haha</code> is not in the
+            'dictionary'. In the example above, <code>handsaturnspin</code> is
+            actually searched twice: once for the segmentation with
+            <code>"he", "art"</code>, and again for the segmentation with
+            <code>"heart"</code>. This seems wasteful: if
+            <code>handsaturnspin<span style="text-decoration: underline;">haha</span></code>
+            is unsegmentable, there should be no need to search it on both
+            <code>"he art"</code> and <code>"heart"</code>.
+        </p>
+        <p>In our code, if the submessage is found to be unsegmentable, it is
+            added to <code>failed_queries</code>, a set of unsegmentable
+            substrings. The next time it is selected,
+            <code>search_message</code> finds that it has already been searched
+            and skips the computation entirely. This technique of 'caching'
+            results is known as 'memoization' in <a
+                href="https://en.wikipedia.org/wiki/Functional_programming">functional
+                programming</a>, a computing paradigm that minimises repeated
+            calculations, decreasing the runtime.
+        </p>
+        <p>Similarly, successful segmentations (as returned by
+            <code>search_message</code>) are stored in a python dictionary,
+            <code>query_lookup</code>, for future reference.
+        </p>
+        <h3>Putting it all together</h3>
+        <p>For each submessage:</p>
+        <ul>
+            <li>If the submessage is found in <code>failed_queries</code>, we
+                <code>continue</code> to the next iteration of the loop.
+            </li>
+            <li>Otherwise, we loop through three search functions in order:
+                <code>search_lookup</code>, <code>search_spotipy</code>, and
+                <code>search_db</code>. These check the cache of successful
+                previous queries, Spotify (via its API), and our Kaggle database
+                respectively.
+            </li>
+        </ul>
+    </section>
+    <section>
+        <h2 class="section-header">Creating the playlist</h2>
+        <p>This part was comparatively easy. Mixtape50 uses the <a
+                href="https://developer.spotify.com/documentation/web-api/">Spotify
+                API</a> via the <a
+                href="https://spotipy.readthedocs.io/">spotipy</a> python
+            library to create a playlist, and add tracks to it. The Spotify API
+            relies on the OAuth 2.0 authorisation protocol, but the
+            implementation details are thankfully abstracted away by the
+            <code>spotipy</code> library.
+        </p>
+    </section>
+    <section>
+        <h2 class="section-header">Coda: server-sent events</h2>
+        <p>Unlike the toy example shown earlier, the results take some time to
+            return - usually under a minute - because queries to Spotify's API
+            are rate-limited. To improve the user experience, once the user
+            submits a message, a new tab is opened, which displays the progress
+            of the search in real-time for the user to inspect.</p>
+        <p>This presents another challenge: since the search takes place in the
+            server, how can updates be sent live from the server to the client
+            (the browser)? In the typical HTTP paradigm, the server
+            <em>only</em> sends a response after the client sends a request.
+            What we want to do is allow the server to send a response
+            unilaterally, without a prior request from the client.
+        </p>
+        <p>After considering a few alternatives like <a
+                href="https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API">WebSocket</a>,
+            I decided to use <a
+                href="https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events">server-sent
+                events (SSE)</a>. Essentially, this allows the client to
+            "subscribe" to a stream of events from the server, until the
+            connection is closed. The flow goes something like this:</p>
+        <ul>
+            <li>The client (the browser) sends a request to the server to
+                "subscribe" to updates. (This is handled via <a
+                    href="https://developer.mozilla.org/en-US/docs/Web/API/EventSource">EventSource</a>,
+                a vanilla JavaScript interface to server-sent events.)</li>
+            <li>Once the EventSource connection is opened, the server can send
+                updates to the client via by setting the
+                <code>Content-Type</code> header to
+                <code>text/event-stream</code>.
+            </li>
+            <li>When the search has completed, a final message is sent to the
+                client to close the connection.</li>
+        </ul>
+        <p>Most of this is implemented in a JavaScript file,
+            <code>creating.js</code> on the client side, while the server's
+            transmissions are handled via a MessageAnnouncer object in
+            <code>announcer.py</code> (adapted from <a
+                href="https://maxhalford.github.io/blog/flask-sse-no-deps/">this
+                article</a> by Max Halford).
+        </p>
+    </section>
+    <section>
+        <h2 class="section-header">Final thoughts</h2>
+        <p>If you've made it this far, please accept my sincere thanks - it
+            means a lot to me! If you have any comments or suggestions for
+            improvement, please feel free to contact me, or make a merge
+            request.</p>
+        <h3>Limitations and extensions</h3>
+        <p>There are quite a few features I'd have liked to implement but for my
+            lack of time, will, and technical ability. I may refactor my code
+            and attempt to do so in future. If it is interesting or of value to
+            you, you are most welcome to contribute!</p>
+        <ul>
+            <li><b>Improved track title cleaning.</b> There are still a few edge
+                cases, like "I'm Not Okay (I Promise)" (by My Chemical Romance)
+                - this would match <code>i'm not okay</code>, but not
+                <code>i'm not okay, i promise!</code>. Additionally, to reduce
+                the chances of a message tripping up, I'd like to allow, say,
+                the word <code>you</code> to match both "you" and "u", or
+                <code>want to</code> to match "want to", "wanna", or even "wna",
+                in both directions.
+            </li>
+            <li><b>Updating the cache into a SQL database directly.</b> Common
+                queries could be cached into a SQL database instead of a python
+                dictionary, allowing for caching to persist between sessions.
+            </li>
+            <li><b>Customizing the playlist.</b> Usually, a successful Spotify
+                or database search returns not one, but quite a few songs. Once
+                the screen has loaded, I'd like for the user to be able to
+                choose which of the matching songs to include in the playlist.
+                For example, the user could pick out a specific cover of the
+                matching song, which is in line with the thoughtful, deliberate
+                composition process that defined mixtapes in the past.
+                (Actually, if you open the browser console, you'll see the song
+                data is actually sent over to the client - I just couldn't
+                figure out the JavaScript to make the selection happen.)</li>
+            <li><b>Making the app thread- and process-safe.</b> One serious bug
+                is that the app currently cannot handle simultaneous requests -
+                one user's input would cause server-sent events to be broadcast
+                to not only them, but also other users on the
+                <code>/creating</code> route. I explored using Flask's
+                request-context <code>g</code> object to create a separate
+                "channel" for each user, but it proved beyond me.
+            </li>
+        </ul>
+        <h3>Lessons learnt</h3>
+        <p>This project felt very apt as a capstone for the CS50x course. It
+            essentially tied together concepts from the entire course, including
+        </p>
+        <ul>
+            <li><b>Algorithms and data structures:</b> in implementing the
+                string segmentation algorithm,</li>
+            <li><b>SQL:</b> in constructing the database lookups,</li>
+            <li><b>HTML, CSS, and JavaScript:</b> in designing the website,</li>
+            <li><b>Flask and HTTP protocols:</b> in putting together the app,
+                and learning the EventSource protocol and more about APIs in
+                general.</li>
+        </ul>
+        <p>This was Mixtape50!</p>
+    </section>
+</article>
+
+<!-- Script to auto-format section headers -->
+<script>
+    var sectionHeaders = document.querySelectorAll(".section-header");
+    const kebabCase = string => string
+        .replace(/([a-z])([A-Z])/g, "$1-$2")
+        .replace(/[\s_]+/g, '-')
+        .toLowerCase();
+
+    // Add '#' symbol and link to each section header
+    sectionHeaders.forEach((sectionHeader, index, parent) => {
+        var sectionHeaderId = kebabCase(sectionHeader.textContent);
+        sectionHeader.setAttribute("id", sectionHeaderId);
+        sectionHeader.style.padding = "20px 0 3px 0";
+        sectionHeader.style.borderBottom = "1px solid #CBCACA";
+        sectionHeader.style.marginBottom = "1rem";
+
+        var hashIcon = document.createElement("a");
+        hashIcon.textContent = (index).toLocaleString('en-US', { minimumIntegerDigits: 2, useGrouping: false }) + " ";
+        hashIcon.href = "#" + kebabCase(sectionHeader.textContent);
+        sectionHeader.prepend(hashIcon);
+    })
+
+</script>
+
+<!-- MathJax -->
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+<!--Syntax highlighting with Highlight.js-->
+<link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/atom-one-dark.min.css">
+
+<!-- Disabled highlight.js script & hidden source code -->
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script> -->
+<pre hidden>
+        <code style="background-color: #073642; font-weight: normal;" class="language-python hljs">def wordBreak(message, dictionary, output = []):
+# Base case
+if message == "":
+    print(output)
+    return
+
+# Recursive case
+for i in range(len(message)):
+    word = message[:len(message) - i]
+    sub_message = message[len(message) - i:]
+    if word in dictionary:
+        wordBreak(message = sub_message,
+                    dictionary = dictionary,
+                    output = output + [word])</code>
+    </pre>
+{% endblock%}

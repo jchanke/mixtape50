@@ -1,0 +1,90 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Create a Mixtape
+{% endblock %}
+<!-- Creating Mixtape... TODO: use an if block! -->
+
+{% block main %}
+<!-- 'Type a message' : user's input -->
+<div id="message-input-container">
+  <form onsubmit="event.preventDefault(); onSubmitMessage();">
+    <input type=" text" class="form-control" name="message" id="message"
+      placeholder="Type a message" required autofocus autocomplete="off">
+    <br>
+    <br>
+    <div class="d-flex justify-content-center">
+      <button type="submit"
+        class="btn btn-primary btn-lg m-auto">Create</button>
+    </div>
+  </form>
+
+  <br>
+
+  <!-- Auto-fill text input with sample mixtapes -->
+  <div class="d-flex justify-content-center align-items-center flex-wrap">
+    Try:&nbsp;
+    <button class="btn btn-secondary btn-sm m-1" id="pledge">The Singapore
+      Pledge</button>
+    <button class="btn btn-secondary btn-sm m-1" id="outsider">The Outsider /
+      L' Étranger</button>
+    <button class="btn btn-secondary btn-sm m-1" id="constitution">Preamble to
+      the U.S. Constitution</button>
+  </div>
+</div>
+
+<div id="mixtape-container" hidden>
+  <!-- Status of mixtape creation -->
+  <h1 id="status" class="text-center"
+    style="font-size: xxx-large; font-weight: bold; letter-spacing: -0.05em">
+    Searching:</h1>
+
+  <!-- Dynamically-updated list of tracks -->
+  <div id="tracks-list" class="d-flex flex-wrap align-items-center"></div>
+  <br>
+
+  <!-- If successful, puts playlist here -->
+  <div class="d-flex justify-content-center" id="upon-complete"></div>
+</div>
+
+<!-- Login modal: displayed only if not logged in -->
+<div class="modal fade" id="login-modal" data-bs-backdrop="static"
+  data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel"
+  aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content" style="color: black">
+      <div class="modal-header">
+        <button type="button" class="btn-close" data-bs-dismiss="modal"
+          aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Login with Spotify to make a mixtape!
+      </div>
+      <div class="modal-footer">
+        <button id="login-button" class="btn btn-success"
+          onclick="loginWithSpotifyClick();" autofocus>
+          Log in with Spotify
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/static/app.js" type="module"></script>
+
+<script>
+  const form = document.querySelector("form");
+  const messageInput = document.querySelector("input");
+  const submitButton = form.querySelector("button");
+
+  // Input values into field when buttons are pressed
+  const PLEDGE = "We, the citizens of Singapore, pledge ourselves as one united people, regardless of race, language or religion, to build a democratic society based on justice and equality so as to achieve happiness, prosperity and progress for our nation.";
+  const OUTSIDER = "Mother died today. Or maybe yesterday, I don't know. I received a telegram from the old people's home: \"Mother deceased. Funeral tomorrow. Very sincerely yours.\" That doesn't mean anything. It might have been yesterday.";
+  const CONSTITUTION = "We the People of the United States, in Order to form a more perfect Union, establish Justice, insure domestic Tranquility, provide for the common defense, promote the general Welfare, and secure the Blessings of Liberty to ourselves and our Posterity, do ordain and establish this Constitution for the United States of America.";
+
+  document.getElementById("pledge").addEventListener("click", event => messageInput.value = PLEDGE);
+  document.getElementById("outsider").addEventListener("click", event => messageInput.value = OUTSIDER);
+  document.getElementById("constitution").addEventListener("click", event => messageInput.value = CONSTITUTION);
+
+</script>
+{% endblock%}
