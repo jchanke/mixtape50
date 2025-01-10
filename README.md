@@ -23,6 +23,6 @@ After starting the application, enter your message -- and the application will g
 Hope you have fun! 🎵
 
 ## To-dos
-- [] Make the 'X' button on the modal close the modal
-- [] Prevent the user from submitting a message if they aren't authenticated (check for `access_token` in `app.js`)
-- [] Give the user an option to go back to create another mixtape, without re-loading the page
+- [ ] Make the 'X' button on the modal close the modal
+- [ ] Prevent the user from submitting a message if they aren't authenticated (check for `access_token` in `app.js`)
+- [ ] Give the user an option to go back to create another mixtape, without re-loading the page
