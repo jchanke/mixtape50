@@ -2,6 +2,8 @@
 
 Creates a Spotify playlist that spells out a message.
 
+![mixtape50 demo](mixtape50.gif)
+
 ## 🔧 Installation
 
 The easiest way to run this locally is via Docker:

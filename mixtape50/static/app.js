@@ -18,7 +18,7 @@ import { cleanTitle, removePunctuation, sleep } from './util.js';
  */
 
 const clientId = '55a7da6ecd234a3986568cdff560d96b'; // clientId for mixtape50, not secret
-const redirectUrl = 'http://localhost:5000';         // your redirect URL - must be localhost URL and/or HTTPS
+const redirectUrl = 'https://mixtape50.onrender.com';         // your redirect URL - must be localhost URL and/or HTTPS
 
 const authorizationEndpoint = "https://accounts.spotify.com/authorize";
 const tokenEndpoint = "https://accounts.spotify.com/api/token";
