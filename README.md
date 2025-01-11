@@ -1,8 +1,8 @@
-# mixtape50
+# 📼 mixtape50
 
 Creates a Spotify playlist that spells out a message.
 
-## Installation
+## 🔧 Installation
 
 The easiest way to run this locally is via Docker:
 ```bash
@@ -17,12 +17,12 @@ If you want to deploy this, remember to set `FLASK_SECRET` to something really s
 
 The application should now be running on [http://localhost:5000](http://localhost:5000).
 
-## Usage
-After starting the application, enter your message -- and the application will generate a Spotify playlist that spells out the message!
+## 🚀 Usage
+After starting the application, enter your message — and the application will generate a Spotify playlist that spells out the message!
 
-Hope you have fun! 🎵
+Hope you have fun!! 🎵
 
-## To-dos
+## 📝 To-dos
 - [ ] Make the 'X' button on the modal close the modal
 - [ ] Prevent the user from submitting a message if they aren't authenticated (check for `access_token` in `app.js`)
 - [ ] Give the user an option to go back to create another mixtape, without re-loading the page
