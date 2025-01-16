@@ -24,12 +24,18 @@ Create a Mixtape
   <!-- Auto-fill text input with sample mixtapes -->
   <div class="d-flex justify-content-center align-items-center flex-wrap">
     Try:&nbsp;
-    <button class="btn btn-secondary btn-sm m-1" id="pledge">The Singapore
-      Pledge</button>
-    <button class="btn btn-secondary btn-sm m-1" id="outsider">The Outsider /
-      L' Étranger</button>
-    <button class="btn btn-secondary btn-sm m-1" id="constitution">Preamble to
-      the U.S. Constitution</button>
+    <button class="btn btn-secondary btn-sm m-1" id="order-mcdonalds"
+      title="A playlist by 'surya dantuluri yecombinator.com' on Spotify">
+      Order McDonald's
+    </button>
+    <button class="btn btn-secondary btn-sm m-1" id="outsider"
+      title="The Tragedy of Darth Plagueis The Wise">
+      It's a Sith legend.
+    </button>
+    <button class="btn btn-secondary btn-sm m-1" id="constitution"
+      title="A playlist by 'meltingneptune' on Spotify">
+      Pick a font for your essay
+    </button>
   </div>
 </div>
 
@@ -78,13 +84,13 @@ Create a Mixtape
   const submitButton = form.querySelector("button");
 
   // Input values into field when buttons are pressed
-  const PLEDGE = "We, the citizens of Singapore, pledge ourselves as one united people, regardless of race, language or religion, to build a democratic society based on justice and equality so as to achieve happiness, prosperity and progress for our nation.";
-  const OUTSIDER = "Mother died today. Or maybe yesterday, I don't know. I received a telegram from the old people's home: \"Mother deceased. Funeral tomorrow. Very sincerely yours.\" That doesn't mean anything. It might have been yesterday.";
-  const CONSTITUTION = "We the People of the United States, in Order to form a more perfect Union, establish Justice, insure domestic Tranquility, provide for the common defense, promote the general Welfare, and secure the Blessings of Liberty to ourselves and our Posterity, do ordain and establish this Constitution for the United States of America.";
+  const ORDER_MCDONALDS = "Hello can I get a Big Mac, no pickles, extra ketchup... uhh... medium french fries and also one extra large Sprite. That will be all. Thanks!";
+  const DARTH_PLAGUEIS = "Did you ever hear the tragedy of Darth Plagueis the Wise? I thought not. It's not a story the Jedi would tell you. It's a Sith legend. Darth Plagueis was a Dark Lord of the Sith, so powerful and so wise...";
+  const ESSAY_FONT = "Comic Sans: no, Arial. Wait - Georgia time. Nah nah nah nah nah - why Georgia? What about Times New Roman? Nevermind, back to Georgia. However - I like Courier! Hold up, wait a minute, enough's enough - I have decided I'm going to do Helvetica.";
 
-  document.getElementById("pledge").addEventListener("click", event => messageInput.value = PLEDGE);
-  document.getElementById("outsider").addEventListener("click", event => messageInput.value = OUTSIDER);
-  document.getElementById("constitution").addEventListener("click", event => messageInput.value = CONSTITUTION);
+  document.getElementById("order-mcdonalds").addEventListener("click", event => messageInput.value = ORDER_MCDONALDS);
+  document.getElementById("darth-plagueis").addEventListener("click", event => messageInput.value = DARTH_PLAGUEIS);
+  document.getElementById("essay-font").addEventListener("click", event => messageInput.value = ESSAY_FONT);
 
 </script>
 {% endblock%}
